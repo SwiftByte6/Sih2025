@@ -1,10 +1,11 @@
 'use client'
 import React, { useState, useEffect } from "react"
-import { uploadMediaAndCreateReport } from "../lib/reportService"
+import { uploadMediaAndCreateReport } from "@/lib/reportService"
 
 const CitizenReportForm = () => {
   const [formData, setFormData] = useState({
-    hazardType: "",
+    title: "",
+    type: "",
     description: "",
     location: { lat: null, lng: null },
     media: null,
@@ -44,13 +45,14 @@ const CitizenReportForm = () => {
 
     try {
       const created = await uploadMediaAndCreateReport({
-        hazardType: formData.hazardType,
+        title: formData.title,
+        type: formData.type,
         description: formData.description,
         location: formData.location,
         media: formData.media,
       })
       alert("Report submitted successfully ✅")
-      setFormData({ hazardType: "", description: "", location: formData.location, media: null })
+      setFormData({ title: "", type: "", description: "", location: formData.location, media: null })
     } catch (err) {
       console.error(err)
       alert("❌ Failed to submit report")
@@ -63,23 +65,34 @@ const CitizenReportForm = () => {
     <div className="p-4 max-w-lg mx-auto bg-white rounded-2xl shadow-lg">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">Report Hazard</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        
-        {/* Hazard Type */}
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <input
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            placeholder="Short title (e.g., Flooding near Marine Drive)"
+            className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-sky-400"
+          />
+        </div>
+
+        {/* Hazard Type (schema-aligned) */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Hazard Type</label>
           <select
-            name="hazardType"
-            value={formData.hazardType}
+            name="type"
+            value={formData.type}
             onChange={handleChange}
             required
             className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-sky-400"
           >
             <option value="">Select Hazard</option>
-            <option value="high_waves">🌊 High Waves</option>
-            <option value="storm_surge">🌪 Storm Surge</option>
-            <option value="flooding">🌧 Coastal Flooding</option>
-            <option value="tsunami">🌊 Tsunami</option>
-            <option value="swell">🌊 Swell Surge</option>
+            <option value="flood">🌧 Flood</option>
+            <option value="cyclone">🌪 Cyclone/Storm</option>
+            <option value="erosion">🏖 Erosion</option>
+            <option value="pollution">🛢 Pollution</option>
             <option value="other">⚠️ Other</option>
           </select>
         </div>

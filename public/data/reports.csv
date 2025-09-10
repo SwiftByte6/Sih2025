@@ -1,0 +1,22 @@
+id,user_id,title,description,type,status,image_url,latitude,longitude,created_at
+1,,High tide flooding near Gateway of India,Water has entered the promenade area,flood,verified,,18.9220,72.8347,2025-09-09T08:15:00Z
+2,,Oil sheen observed off Mumbai coast,Thin layer of oil visible on water,pollution,pending,,19.0760,72.8777,2025-09-09T10:30:00Z
+3,,Coastal erosion at Alibaug beach,Beachline receded by ~3 meters,erosion,pending,,18.6414,72.8758,2025-09-09T12:05:00Z
+4,,Rough seas warning – Versova,Large waves crashing onto rocks,cyclone,verified,,19.1340,72.8120,2025-09-09T14:20:00Z
+5,,Flooded road near Juhu Tara Road,Traffic halted due to standing water,flood,verified,,19.0988,72.8267,2025-09-09T16:45:00Z
+6,,Plastic accumulation near Worli Sea Face,Garbage patches visible,pollution,pending,,19.0169,72.8170,2025-09-09T18:10:00Z
+7,,Seawall damage at Bandra Fort,Cracks noticed along the seawall,erosion,pending,,19.0500,72.8200,2025-09-10T06:25:00Z
+8,,Rip current suspected at Aksa Beach,Lifeguards caution swimmers,cyclone,verified,,19.1800,72.7950,2025-09-10T07:40:00Z
+9,,Industrial discharge near Thane Creek,Discolored water flowing in,pollution,rejected,,19.1803,72.9530,2025-09-10T08:10:00Z
+10,,Minor flooding at Marine Drive,Water logging on the walkway,flood,pending,,18.9430,72.8238,2025-09-10T08:55:00Z
+11,,Beach erosion – Gorai Creek,Sand loss observed near mangroves,erosion,verified,,19.2500,72.7830,2025-09-10T09:15:00Z
+12,,Strong winds near Colaba,Boats secured by fishermen,cyclone,pending,,18.9067,72.8147,2025-09-10T09:45:00Z
+13,,Oil spill smell near Nhava Sheva,Strong petroleum odor,pollution,pending,,18.9460,72.9460,2025-09-10T10:20:00Z
+14,,Overtopping waves at Haji Ali,Dangerous conditions on causeway,flood,verified,,18.9778,72.8090,2025-09-10T10:50:00Z
+15,,Sand dune retreat – Kashid Beach,Dune vegetation uprooted,erosion,pending,,18.4365,72.8943,2025-09-10T11:30:00Z
+16,,Cyclonic swell at Murud Janjira,High swell reported,cyclone,verified,,18.3282,72.9629,2025-09-10T12:05:00Z
+17,,Foam formation near Dadar Chowpatty,Possible detergent contamination,pollution,pending,,19.0176,72.8429,2025-09-10T12:40:00Z
+18,,Storm surge alert – Alibaug Harbor,Piers partially submerged,flood,verified,,18.6481,72.8756,2025-09-10T13:10:00Z
+19,,Cliff toe erosion – Ratnagiri,Toeing undermined by waves,erosion,pending,,16.9902,73.3120,2025-09-10T13:40:00Z
+20,,Gale warning – Sindhudurg coast,Sea state rough,cyclone,verified,,16.3492,73.5594,2025-09-10T14:05:00Z
+

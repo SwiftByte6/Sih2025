@@ -1,0 +1,7 @@
+id,title,type,severity,region,expiry,created_at
+1,Cyclone Watch Issued,cyclone,high,Konkan Coast,2025-09-12T18:00:00Z,2025-09-10T08:00:00Z
+2,Advisory: Avoid Sea Bathing,general,medium,Mumbai Beaches,,2025-09-10T09:00:00Z
+3,Flood Warning for Low-lying Areas,flood,high,South Mumbai,2025-09-10T20:00:00Z,2025-09-10T10:30:00Z
+4,Pollution Alert Near Thane Creek,pollution,medium,Thane Creek,2025-09-11T12:00:00Z,2025-09-10T11:15:00Z
+5,Erosion Risk Advisory,erosion,low,Alibaug Coast,2025-09-15T00:00:00Z,2025-09-10T12:45:00Z
+

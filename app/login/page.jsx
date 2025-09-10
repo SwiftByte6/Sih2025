@@ -12,6 +12,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
   const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
+  const [emailError, setEmailError] = useState("")
+  const [passwordError, setPasswordError] = useState("")
 
   async function fetchRoleAndRedirect() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -43,16 +46,34 @@ export default function LoginPage() {
   async function onSubmit(e) {
     e.preventDefault()
     setError("")
+    setMessage("")
+    setEmailError("")
+    setPasswordError("")
     setLoading(true)
     try {
+      // Basic validation
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailPattern.test(email)) {
+        setEmailError("Enter a valid email address")
+      }
+      if (password.length < 6) {
+        setPasswordError("Password must be at least 6 characters")
+      }
+      if (!emailPattern.test(email) || password.length < 6) {
+        throw new Error("Please fix the form errors")
+      }
+
       if (isSignUp) {
         const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
         if (signUpError) throw signUpError
         const userId = data.user?.id
         if (userId) await ensureProfile(userId)
+        // Depending on Supabase settings, email confirmation may be required
+        setMessage("Account created. Check your email to verify, then sign in.")
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
+        setMessage("Signed in! Redirecting...")
       }
       await fetchRoleAndRedirect()
     } catch (err) {
@@ -89,7 +110,7 @@ export default function LoginPage() {
           {isSignUp ? "Create an account" : "Welcome back"}
         </h1>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <input
             type="email"
             placeholder="Email"
@@ -98,6 +119,7 @@ export default function LoginPage() {
             required
             className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
+          {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           <input
             type="password"
             placeholder="Password"
@@ -106,6 +128,7 @@ export default function LoginPage() {
             required
             className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
+          {passwordError && <p className="text-red-400 text-xs mt-1">{passwordError}</p>}
           <button
             type="submit"
             disabled={loading}
@@ -121,7 +144,8 @@ export default function LoginPage() {
               : "Sign in"}
           </button>
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {error && <p className="text-red-500 text-sm text-center" role="alert" aria-live="polite">{error}</p>}
+          {message && <p className="text-green-400 text-sm text-center" aria-live="polite">{message}</p>}
         </form>
 
         <button
