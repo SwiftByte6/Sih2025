@@ -40,7 +40,7 @@ const BottomNav = () => {
     return (
     <div className='w-full h-[10vh] bg-gray-200 fixed bottom-0 flex justify-around'>
       {NavItem.map((item,index)=>(
-        <div 
+        <div key={index}
         onClick={()=>router.push(item.route)}
         className='flex flex-col justify-center items-center '>
             {item.icon}
