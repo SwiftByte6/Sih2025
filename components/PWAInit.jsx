@@ -18,6 +18,21 @@ function showLocalNotification(registration, title, options) {
 export default function PWAInit() {
   useEffect(() => {
     let swRegistration
+    // If installed from an expired Netlify deploy preview, migrate to the stable origin
+    try {
+      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : ''
+      const isNetlifyPreview = /--.+\.netlify\.app$/i.test(currentOrigin)
+      const stableNetlify = process.env.NEXT_PUBLIC_STABLE_ORIGIN || ''
+      if (isNetlifyPreview && stableNetlify) {
+        // Redirect to stable domain and unregister any preview SW
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations?.().then((regs) => {
+            regs?.forEach((r) => r.unregister().catch(() => {}))
+          })
+        }
+        try { window.location.replace(stableNetlify) } catch (_) {}
+      }
+    } catch (_) {}
     async function registerSW() {
       if ('serviceWorker' in navigator) {
         try {
