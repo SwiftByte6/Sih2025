@@ -1,67 +1,109 @@
 "use client";
 
-import { useState } from "react";
-import { AlertCircle, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { AlertTriangle, MapPin, X } from "lucide-react";
+
+function severityStyle(sev) {
+  const s = (sev || "").toLowerCase();
+  if (s === "critical") return { badge: "bg-red-600 text-white", card: "border-red-300 bg-red-50" };
+  if (s === "high") return { badge: "bg-orange-500 text-white", card: "border-orange-300 bg-orange-50" };
+  if (s === "medium") return { badge: "bg-amber-500 text-white", card: "border-amber-300 bg-amber-50" };
+  return { badge: "bg-emerald-600 text-white", card: "border-emerald-300 bg-emerald-50" };
+}
 
 export default function Page() {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "High Temperature",
-      message: "Server room temperature has exceeded safe levels. Immediate cooling required.",
-    },
-    {
-      id: 2,
-      title: "Unauthorized Access",
-      message: "Multiple failed login attempts detected from unknown IP addresses.",
-    },
-    {
-      id: 3,
-      title: "System Overload",
-      message: "CPU usage has reached 95%. Consider shutting down non-essential processes.",
-    },
-  ]);
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const dismissNotification = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  useEffect(() => {
+    let ignore = false;
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/alerts', { cache: 'no-store' });
+        const json = await res.json();
+        if (!ignore) {
+          setAlerts(Array.isArray(json.alerts) ? json.alerts : []);
+          setLoading(false);
+        }
+      } catch (e) {
+        if (!ignore) {
+          setError('Failed to load alerts');
+          setLoading(false);
+        }
+      }
+    }
+    load();
+    const channel = supabase
+      .channel('alerts-user-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, () => load())
+      .subscribe();
+    return () => { ignore = true; supabase.removeChannel(channel); };
+  }, []);
+
+  const dismiss = (id) => setAlerts(prev => prev.filter(a => a.id !== id));
+
+  const grouped = useMemo(() => {
+    const groups = { critical: [], high: [], medium: [], low: [], other: [] };
+    for (const a of alerts) {
+      const sev = (a.severity || '').toLowerCase();
+      if (sev in groups) groups[sev].push(a); else groups.other.push(a);
+    }
+    return groups;
+  }, [alerts]);
+
+  const renderCard = (a) => {
+    const styles = severityStyle(a.severity);
+    return (
+      <div key={a.id} className={`rounded-2xl border p-4 shadow-sm ${styles.card}`}>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5">
+            <AlertTriangle className="h-6 w-6 text-red-600" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${styles.badge}`}>{String(a.severity || 'low').toUpperCase()}</span>
+              {a.region && (
+                <span className="inline-flex items-center gap-1 text-xs text-gray-700">
+                  <MapPin className="h-3.5 w-3.5" /> {a.region}
+                </span>
+              )}
+              <span className="ml-auto text-[11px] text-gray-500">{a.created_at ? new Date(a.created_at).toLocaleString() : ''}</span>
+            </div>
+            <div className="mt-1">
+              <div className="text-base font-semibold text-gray-900">{a.title}</div>
+            </div>
+          </div>
+          <button onClick={() => dismiss(a.id)} className="p-1 rounded hover:bg-black/5">
+            <X className="h-5 w-5 text-gray-600" />
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-lg space-y-4">
-        {notifications.map((n) => (
-          <div
-            key={n.id}
-            className="flex items-start gap-4 rounded-2xl border border-red-300 bg-red-50 p-6 sm:p-4 shadow-lg"
-          >
-            {/* Icon */}
-            <AlertCircle className="h-8 w-8 text-red-600 mt-1 sm:h-6 sm:w-6" />
+    <main className="min-h-screen bg-surface p-4 pb-24">
+      <div className="mx-auto max-w-md space-y-4">
+        <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
+          <h1 className="text-lg font-bold text-foreground">Alerts</h1>
+          <p className="text-sm text-foreground/70">Stay informed about hazards in your area.</p>
+        </div>
 
-            {/* Message */}
-            <div className="flex-1">
-              <h2 className="text-lg sm:text-base text-red-800 font-bold">
-                {n.title}
-              </h2>
-              <p className="text-base sm:text-sm text-red-700 leading-relaxed">
-                {n.message}
-              </p>
-            </div>
+        {loading && <p className="text-center text-foreground/70 text-sm">Loading…</p>}
+        {!!error && <p className="text-center text-red-600 text-sm">{error}</p>}
 
-            {/* Close button */}
-            <button
-              onClick={() => dismissNotification(n.id)}
-              className="rounded-lg p-2 hover:bg-red-100 transition"
-            >
-              <X className="h-6 w-6 text-red-600 sm:h-5 sm:w-5" />
-            </button>
-          </div>
-        ))}
-
-        {notifications.length === 0 && (
-          <p className="text-center text-gray-600 text-sm">
-            🎉 No hazard notifications!
-          </p>
+        {!loading && alerts.length === 0 && (
+          <p className="text-center text-foreground/70 text-sm">🎉 No active alerts.</p>
         )}
+
+        {grouped.critical.map(renderCard)}
+        {grouped.high.map(renderCard)}
+        {grouped.medium.map(renderCard)}
+        {grouped.low.map(renderCard)}
+        {grouped.other.map(renderCard)}
       </div>
     </main>
   );

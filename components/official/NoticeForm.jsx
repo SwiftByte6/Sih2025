@@ -23,12 +23,12 @@ export default function NoticeForm({ onSubmit }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-gray-800 bg-gray-900 p-4 space-y-3">
-      <div className="text-sm text-gray-300">Create Notice</div>
+    <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+      <div className="text-sm text-gray-700">Create Notice</div>
       <div className="space-y-1">
-        <label className="text-xs text-gray-400">Title</label>
+        <label className="text-xs text-gray-500">Title</label>
         <input
-          className="w-full rounded-md bg-gray-950 border border-gray-800 px-3 py-2 text-sm outline-none focus:border-sky-600"
+          className="w-full rounded-md bg-white border border-gray-300 px-3 py-2 text-sm outline-none focus:border-sky-600"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Notice title"
@@ -36,9 +36,9 @@ export default function NoticeForm({ onSubmit }) {
         />
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-gray-400">Content</label>
+        <label className="text-xs text-gray-500">Content</label>
         <textarea
-          className="w-full rounded-md bg-gray-950 border border-gray-800 px-3 py-2 text-sm outline-none focus:border-sky-600 min-h-[96px]"
+          className="w-full rounded-md bg-white border border-gray-300 px-3 py-2 text-sm outline-none focus:border-sky-600 min-h-[96px]"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Write the notice details"
@@ -46,19 +46,19 @@ export default function NoticeForm({ onSubmit }) {
         />
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-gray-400">Region (optional)</label>
+        <label className="text-xs text-gray-500">Region (optional)</label>
         <input
-          className="w-full rounded-md bg-gray-950 border border-gray-800 px-3 py-2 text-sm outline-none focus:border-sky-600"
+          className="w-full rounded-md bg-white border border-gray-300 px-3 py-2 text-sm outline-none focus:border-sky-600"
           value={region}
           onChange={(e) => setRegion(e.target.value)}
           placeholder="e.g., Mumbai"
         />
       </div>
       <div className="space-y-1">
-        <label className="text-xs text-gray-400">Expiry (optional)</label>
+        <label className="text-xs text-gray-500">Expiry (optional)</label>
         <input
           type="datetime-local"
-          className="w-full rounded-md bg-gray-950 border border-gray-800 px-3 py-2 text-sm outline-none focus:border-sky-600"
+          className="w-full rounded-md bg-white border border-gray-300 px-3 py-2 text-sm outline-none focus:border-sky-600"
           value={expiry}
           onChange={(e) => setExpiry(e.target.value)}
         />

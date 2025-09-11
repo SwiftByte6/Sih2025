@@ -15,20 +15,20 @@ function DesktopSidebar() {
     { href: '/analyst/profile', label: 'Profile', icon: User },
   ]
   return (
-    <aside className="hidden lg:flex lg:flex-col w-64 bg-gray-900 text-white border-r border-gray-800">
-      <div className="h-16 flex items-center px-6 text-xl font-bold">CoastSafe</div>
+    <aside className="hidden lg:flex lg:flex-col w-64 bg-white text-foreground border-r border-border">
+      <div className="h-16 flex items-center px-6 text-xl font-bold text-foreground">CoastSafe</div>
       <nav className="flex-1 px-2 py-4 space-y-1">
         {links.map(({ href, label, icon: Icon }) => {
           const active = pathname === href
           return (
-            <Link key={href} href={href} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${active ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}>
-              <Icon size={18} />
-              <span>{label}</span>
+            <Link key={href} href={href} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${active ? 'bg-brand/10 text-foreground' : 'text-foreground/70 hover:bg-brand/10 hover:text-foreground'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30`}>
+              <Icon size={18} className={active ? 'text-foreground' : 'text-foreground/70'} />
+              <span className="text-sm font-medium">{label}</span>
             </Link>
           )
         })}
       </nav>
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-border">
         <LogoutButton />
       </div>
     </aside>
@@ -37,19 +37,19 @@ function DesktopSidebar() {
 
 function TopNavbar({ onOpenMobileNav }) {
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 bg-gray-950/80 backdrop-blur border-b border-gray-800 lg:pl-6">
+    <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 bg-white border-b border-border lg:pl-6">
       <div className="flex items-center gap-3">
-        <button className="lg:hidden p-2 rounded-md hover:bg-gray-800" onClick={onOpenMobileNav} aria-label="Open menu">
-          <Menu size={20} className="text-gray-200" />
+        <button className="lg:hidden p-2 rounded-md hover:bg-brand/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30" onClick={onOpenMobileNav} aria-label="Open menu">
+          <Menu size={20} className="text-foreground" />
         </button>
-        <div className="hidden lg:flex items-center gap-2 text-gray-200">
+        <div className="hidden lg:flex items-center gap-2 text-foreground">
           <MapPinned size={18} />
           <span className="font-semibold">Analyst Console</span>
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <button className="p-2 rounded-md hover:bg-gray-800" aria-label="Notifications">
-          <Bell size={20} className="text-gray-300" />
+        <button className="p-2 rounded-md hover:bg-brand/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30" aria-label="Notifications">
+          <Bell size={20} className="text-foreground/80" />
         </button>
         <LogoutButton />
       </div>
@@ -66,14 +66,14 @@ function MobileBottomNav() {
     { href: '/analyst/profile', label: 'Profile', icon: User },
   ]
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-gray-900 border-t border-gray-800">
+    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-border">
       <div className="grid grid-cols-4">
         {links.map(({ href, label, icon: Icon }) => {
           const active = pathname === href
           return (
-            <Link key={href} href={href} className={`flex flex-col items-center justify-center py-2 text-xs ${active ? 'text-sky-400' : 'text-gray-300'}`}>
-              <Icon size={18} />
-              <span>{label}</span>
+            <Link key={href} href={href} className={`flex flex-col items-center justify-center py-2 text-xs ${active ? 'text-foreground' : 'text-foreground/70'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30`}>
+              <Icon size={18} className={active ? 'text-foreground' : 'text-foreground/70'} />
+              <span className="mt-0.5">{label}</span>
             </Link>
           )
         })}
@@ -85,22 +85,25 @@ function MobileBottomNav() {
 export default function AnalystLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   return (
-    <div className="min-h-dvh bg-gray-950 text-gray-100">
+    <div className="min-h-dvh bg-surface text-foreground">
       <div className="flex">
         <DesktopSidebar />
         <div className="flex-1 min-w-0">
           <TopNavbar onOpenMobileNav={() => setMobileOpen(true)} />
           <main className="px-4 lg:px-6 py-4 pb-20 lg:pb-6">
-            {children}
+            <div className="max-w-7xl mx-auto space-y-4">
+              {/* Page header slot: each page can render its own h1/subtitle */}
+              {children}
+            </div>
           </main>
         </div>
       </div>
 
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <div className="absolute left-0 top-0 h-full w-72 bg-gray-900 border-r border-gray-800 p-4">
-            <div className="text-lg font-semibold mb-4">CoastSafe</div>
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <div className="absolute left-0 top-0 h-full w-72 bg-white border-r border-border p-4">
+            <div className="text-lg font-semibold mb-4 text-foreground">CoastSafe</div>
             {/* Reuse DesktopSidebar links simple */}
             <MobileSidebarLinks onNavigate={() => setMobileOpen(false)} />
           </div>
@@ -126,7 +129,7 @@ function MobileSidebarLinks({ onNavigate }) {
       {links.map(({ href, label }) => {
         const active = pathname === href
         return (
-          <Link key={href} href={href} onClick={onNavigate} className={`block px-3 py-2 rounded-md ${active ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}>
+          <Link key={href} href={href} onClick={onNavigate} className={`block px-3 py-2 rounded-md transition-colors ${active ? 'bg-brand/10 text-foreground' : 'text-foreground/70 hover:bg-brand/10 hover:text-foreground'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30`}>
             {label}
           </Link>
         )

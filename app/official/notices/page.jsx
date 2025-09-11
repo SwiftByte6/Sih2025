@@ -2,11 +2,13 @@
 'use client'
 import { useEffect, useState } from 'react'
 import NoticeForm from '@/components/official/NoticeForm'
+import { useToast } from '@/components/ToastProvider'
 
 export default function OfficialNoticesPage() {
   const [notices, setNotices] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { toast } = useToast()
 
   useEffect(() => {
     let isMounted = true
@@ -18,7 +20,7 @@ export default function OfficialNoticesPage() {
         return json.notices || []
       })
       .then((list) => { if (isMounted) setNotices(list) })
-      .catch((e) => { if (isMounted) setError(e.message || 'Error loading notices') })
+      .catch((e) => { if (isMounted) { setError(e.message || 'Error loading notices'); toast({ title: 'Failed to load notices', description: e.message, variant: 'error' }) } })
       .finally(() => { if (isMounted) setLoading(false) })
     return () => { isMounted = false }
   }, [])
@@ -31,11 +33,12 @@ export default function OfficialNoticesPage() {
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
-      alert(data?.error || 'Failed to create notice')
+      toast({ title: 'Create notice failed', description: data?.error || 'Failed to create notice', variant: 'error' })
       return
     }
     const data = await res.json()
     setNotices(prev => [data.notice, ...prev])
+    toast({ title: 'Notice published', variant: 'success' })
   }
 
   return (
@@ -43,22 +46,22 @@ export default function OfficialNoticesPage() {
       <div className="lg:col-span-1">
         <NoticeForm onSubmit={addNotice} />
       </div>
-      <div className="lg:col-span-2 rounded-xl border border-gray-800 bg-gray-900 p-4 space-y-3">
-        <div className="text-sm text-gray-300">Previous Notices</div>
+      <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+        <div className="text-sm text-gray-700">Previous Notices</div>
         {loading && (
-          <div className="text-sm text-gray-400">Loading…</div>
+          <div className="text-sm text-gray-500">Loading…</div>
         )}
         {!!error && (
-          <div className="text-sm text-red-300">{error}</div>
+          <div className="text-sm text-red-700">{error}</div>
         )}
         {!loading && !error && notices.map(n => (
-          <div key={n.id} className="rounded-lg border border-gray-800 bg-gray-950 p-3">
+          <div key={n.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
             <div className="flex items-center justify-between">
               <div className="font-semibold">{n.title}</div>
-              <div className="text-xs text-gray-400">{n.expiry ? new Date(n.expiry).toLocaleString() : 'No expiry'}</div>
+              <div className="text-xs text-gray-500">{n.expiry ? new Date(n.expiry).toLocaleString() : 'No expiry'}</div>
             </div>
-            <div className="text-sm text-gray-300 mt-1">{n.content}</div>
-            <div className="text-xs text-gray-400 mt-1">Region: {n.region || 'All'}</div>
+            <div className="text-sm text-gray-700 mt-1">{n.content}</div>
+            <div className="text-xs text-gray-500 mt-1">Region: {n.region || 'All'}</div>
           </div>
         ))}
       </div>

@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react"
 import { uploadMediaAndCreateReport } from "@/lib/reportService"
+import { useToast } from "@/components/ToastProvider"
 
 const CitizenReportForm = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const CitizenReportForm = () => {
     media: null,
   })
   const [submitting, setSubmitting] = useState(false)
+  const { toast } = useToast()
 
   // Auto-fetch GPS
   useEffect(() => {
@@ -51,11 +53,11 @@ const CitizenReportForm = () => {
         location: formData.location,
         media: formData.media,
       })
-      alert("Report submitted successfully ✅")
+      toast({ title: 'Report submitted', description: 'Thank you for your contribution.', variant: 'success' })
       setFormData({ title: "", type: "", description: "", location: formData.location, media: null })
     } catch (err) {
       console.error(err)
-      alert("❌ Failed to submit report")
+      toast({ title: 'Submission failed', description: err?.message || 'Failed to submit report', variant: 'error' })
     } finally {
       setSubmitting(false)
     }

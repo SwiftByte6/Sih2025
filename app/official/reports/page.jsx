@@ -45,26 +45,26 @@ export default function OfficialReportsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-gray-800 bg-gray-900 p-3 flex flex-col sm:flex-row gap-2 sm:items-center">
-        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search..." className="flex-1 bg-gray-800/60 border border-gray-700 rounded-md px-3 py-2 text-sm"/>
+      <div className="rounded-xl border border-gray-200 bg-white p-3 flex flex-col sm:flex-row gap-2 sm:items-center">
+        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search..." className="flex-1 bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm"/>
         <div className="flex gap-2">
-          <button onClick={()=>setView('table')} className={`rounded-md px-3 py-2 text-sm ${view==='table'?'bg-sky-600':'bg-gray-800 hover:bg-gray-700'}`}>Table</button>
-          <button onClick={()=>setView('map')} className={`rounded-md px-3 py-2 text-sm ${view==='map'?'bg-sky-600':'bg-gray-800 hover:bg-gray-700'}`}>Map</button>
+          <button onClick={()=>setView('table')} className={`rounded-md px-3 py-2 text-sm ${view==='table'?'bg-sky-600 text-white':'bg-gray-100 hover:bg-gray-200'}`}>Table</button>
+          <button onClick={()=>setView('map')} className={`rounded-md px-3 py-2 text-sm ${view==='map'?'bg-sky-600 text-white':'bg-gray-100 hover:bg-gray-200'}`}>Map</button>
         </div>
       </div>
 
       {loading && (
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 text-sm text-gray-300">Loading reports…</div>
+        <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700">Loading reports…</div>
       )}
       {!!error && (
-        <div className="rounded-xl border border-red-900 bg-red-950 p-4 text-sm text-red-300">{error}</div>
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
       )}
 
       {/* Desktop table */}
       {!loading && !error && view==='table' && (
-        <div className="hidden lg:block rounded-xl border border-gray-800 overflow-hidden">
-          <table className="min-w-full bg-gray-900">
-            <thead className="bg-gray-800 text-gray-300">
+        <div className="hidden lg:block rounded-xl border border-gray-200 overflow-hidden">
+          <table className="min-w-full bg-white">
+            <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="text-left text-sm font-medium px-4 py-2">ID</th>
                 <th className="text-left text-sm font-medium px-4 py-2">Title</th>
@@ -76,7 +76,7 @@ export default function OfficialReportsPage() {
             </thead>
             <tbody>
               {filtered.map(r => (
-                <tr key={r.id} className="border-t border-gray-800">
+                <tr key={r.id} className="border-t border-gray-200">
                   <td className="px-4 py-2">{r.id}</td>
                   <td className="px-4 py-2">{r.title}</td>
                   <td className="px-4 py-2 capitalize">{r.type}</td>
@@ -84,9 +84,9 @@ export default function OfficialReportsPage() {
                   <td className="px-4 py-2">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="px-4 py-2 text-right">
                     <div className="flex gap-2 justify-end">
-                      <button className="px-2 py-1 text-xs rounded-md bg-emerald-600 hover:bg-emerald-700">Resolve</button>
-                      <button className="px-2 py-1 text-xs rounded-md bg-sky-600 hover:bg-sky-700">Forward</button>
-                      <button className="px-2 py-1 text-xs rounded-md bg-gray-800 hover:bg-gray-700">Remark</button>
+                      <button className="px-2 py-1 text-xs rounded-md bg-emerald-600 hover:bg-emerald-700 text-white">Resolve</button>
+                      <button className="px-2 py-1 text-xs rounded-md bg-sky-600 hover:bg-sky-700 text-white">Forward</button>
+                      <button className="px-2 py-1 text-xs rounded-md bg-gray-100 hover:bg-gray-200">Remark</button>
                     </div>
                   </td>
                 </tr>
@@ -107,7 +107,7 @@ export default function OfficialReportsPage() {
 
       {/* Map placeholder */}
       {!loading && !error && view==='map' && (
-        <div className="h-[540px] rounded-xl border border-gray-800 overflow-hidden bg-gray-900">
+        <div className="h[540px] rounded-xl border border-gray-200 overflow-hidden bg-white">
           <MapWidget markers={markers} />
         </div>
       )}

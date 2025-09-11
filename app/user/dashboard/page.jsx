@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { supabaseServerClient } from '@/lib/supabaseServer'
 import { getUserProfileServer } from '@/lib/authServer'
+import Link from 'next/link'
 
 export default async function Page() {
   const cookieStore = cookies()
@@ -23,28 +24,30 @@ export default async function Page() {
   if (role === 'analyst') redirect('/analyst/dashboard')
   if (role === 'official') redirect('/official/dashboard')
 
-  // Toggle simulation for reports
-  const isReportAvailable = true // set false to test "No Reports Yet"
-  const reports = [
-    { id: 1, title: 'Fallen Tree on Road', date: '2025-09-11', status: 'Pending' },
-    { id: 2, title: 'Flooded Area', date: '2025-09-10', status: 'Resolved' },
-  ]
+  // Load recent reports for this user
+  const { data: reportsData } = await supabase
+    .from('reports')
+    .select('id,title,status,created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(10)
+  const reports = Array.isArray(reportsData) ? reportsData : []
 
   return (
-    <div className="w-full min-h-screen p-4 flex flex-col gap-6 bg-[#F4FEFF]">
+    <div className="w-full min-h-screen p-4 flex flex-col gap-6 bg-surface">
       {/* Header */}
-      <h1 className="font-bold text-xl border-b pb-4 border-gray-400">Home</h1>
+      <h1 className="font-bold text-xl border-b pb-4 border-border">Home</h1>
 
       {/* Action Buttons */}
-      <button className="w-full px-4 py-4 rounded-3xl border border-gray-600/80 bg-[#93C5FD]/70 font-bold">
+      <Link href="/user/report" className="w-full px-4 py-4 rounded-3xl border border-border bg-brand/70 font-bold text-center">
         Report Hazard
-      </button>
+      </Link>
 
       <div className="flex gap-4">
-        <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-gray-400 font-bold">
+        <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold">
           View Map
         </button>
-        <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-gray-400 font-bold">
+        <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold">
           View History
         </button>
       </div>
@@ -53,16 +56,16 @@ export default async function Page() {
       <div className="flex flex-col gap-4">
         <h2 className="font-bold text-lg">Recent Reports</h2>
 
-        {isReportAvailable ? (
+        {reports.length > 0 ? (
           <div className="flex flex-col gap-3">
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="w-full bg-[#93C5FD]/70 h-20 rounded-2xl border border-gray-400 flex flex-col justify-center px-4"
+                className="w-full bg-brand/70 h-20 rounded-2xl border border-border flex flex-col justify-center px-4"
               >
-                <p className="font-bold">{report.title}</p>
+                <p className="font-bold">{report.title ?? 'Untitled'}</p>
                 <p className="text-sm text-gray-700">
-                  {report.date} • {report.status}
+                  {new Date(report.created_at).toLocaleString()} • {report.status}
                 </p>
               </div>
             ))}
