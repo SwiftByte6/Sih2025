@@ -37,6 +37,8 @@ export default function PWAInit() {
       if ('serviceWorker' in navigator) {
         try {
           swRegistration = await navigator.serviceWorker.register('/sw.js')
+          // Prime offline page cache once on registration
+          try { await caches.open('static-offline').then(c => c.addAll(['/offline.html'])) } catch (_) {}
         } catch (_) {
           // ignore
         }
