@@ -24,22 +24,19 @@ export default function Page() {
   const markers = useMemo(() => (reports || []).map(r => ({
     id: r.id,
     position: [r.latitude, r.longitude],
-    title: r.hazard_type,
-    description: r.description,
+    title: r.hazard_type || 'No Title',  // fallback if hazard_type is missing
+    description: r.description || 'No Description',
+    status: r.status || 'pending'       // add status for verified/pending
   })), [reports])
 
   return (
-    <div className='w-full min-h-screen  flex flex-col gap-6 max-w-5xl mx-auto'>
-  
-
+    <div className='w-full min-h-screen flex flex-col gap-6 max-w-5xl mx-auto'>
       <div className='space-y-3'>
         <h2 className='font-bold text-2xl m-3 text-center'>Hazard Map</h2>
-        <div className='w-full h-[80vh]  overflow-hidden '>
+        <div className='w-full h-[80vh] overflow-hidden'>
           <MapWithSearch markers={markers} />
         </div>
       </div>
-
-    
     </div>
   )
 }
