@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { supabaseServerClient } from '@/lib/supabaseServer'
+import { getUserProfileServer } from '@/lib/authServer'
 import OfficialDashboardClient from '@/components/official/OfficialDashboardClient'
 
 const dummyReports = []
@@ -10,11 +11,8 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  
+  const profile = await getUserProfileServer(user.id)
   if (profile?.role !== 'official') redirect('/login')
 
   // Fetch latest reports for dashboard and build summary dynamically

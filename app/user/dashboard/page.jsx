@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { supabaseServerClient } from '@/lib/supabaseServer'
+import { getUserProfileServer, getRedirectPath } from '@/lib/authServer'
 import LogoutButton from '@/components/LogoutButton'
 import BottomNav from '@/components/BottomNav'
 
@@ -15,13 +16,10 @@ export default async function Page() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const profile = await getUserProfileServer(user.id, cookieStore)
+  if (!profile) redirect('/login')
 
-  const role = profile?.role?.toLowerCase()
+  const role = profile.role?.toLowerCase()
 
   if (role === 'admin') redirect('/admin/dashboard')
   if (role === 'analyst') redirect('/analyst/dashboard')

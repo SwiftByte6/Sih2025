@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
+import { getUserProfile, getRedirectPath, clearProfileCache } from "@/lib/auth"
+import { measurePerformance } from "@/lib/performance"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -17,19 +19,44 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState("")
 
   async function fetchRoleAndRedirect() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single()
-
-    const role = profile?.role
-    if (role === "admin") router.replace("/admin/dashboard")
-    else if (role === "analyst") router.replace("/analyst/dashboard")
-    else if (role === "official") router.replace("/official/dashboard")
-    else router.replace("/user/dashboard")
+    try {
+      console.log('Starting fetchRoleAndRedirect...')
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('User data:', user)
+      
+      if (!user) {
+        console.log('No user found, returning')
+        return
+      }
+      
+      // Try to get profile with fallback
+      let profile = null
+      try {
+        profile = await getUserProfile(user.id)
+        console.log('Profile data:', profile)
+      } catch (profileError) {
+        console.error('Error fetching profile:', profileError)
+        // Fallback: redirect to user dashboard if profile fetch fails
+        console.log('Profile fetch failed, redirecting to user dashboard as fallback')
+        router.replace('/user/dashboard')
+        return
+      }
+      
+      if (!profile) {
+        console.log('No profile found, redirecting to user dashboard as fallback')
+        router.replace('/user/dashboard')
+        return
+      }
+      
+      const redirectPath = getRedirectPath(profile.role)
+      console.log('Redirecting to:', redirectPath)
+      router.replace(redirectPath)
+    } catch (error) {
+      console.error('Error in fetchRoleAndRedirect:', error)
+      // Fallback: redirect to user dashboard
+      console.log('Redirect failed, using fallback to user dashboard')
+      router.replace('/user/dashboard')
+    }
   }
 
   async function ensureProfile(userId) {
@@ -40,6 +67,8 @@ export default function LoginPage() {
       .maybeSingle()
     if (!existing) {
       await supabase.from("profiles").insert({ id: userId, role: "user" })
+      // Clear cache to ensure fresh data on next fetch
+      clearProfileCache(userId)
     }
   }
 
@@ -50,7 +79,17 @@ export default function LoginPage() {
     setEmailError("")
     setPasswordError("")
     setLoading(true)
+    
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('Login timeout reached')
+      setError('Login is taking too long. Please try again.')
+      setLoading(false)
+    }, 10000) // 10 second timeout
+    
     try {
+      console.log('Starting login process...')
+      
       // Basic validation
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailPattern.test(email)) {
@@ -64,39 +103,76 @@ export default function LoginPage() {
       }
 
       if (isSignUp) {
+        console.log('Signing up user...')
         const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
         if (signUpError) throw signUpError
         const userId = data.user?.id
         if (userId) await ensureProfile(userId)
-        // Depending on Supabase settings, email confirmation may be required
         setMessage("Account created. Check your email to verify, then sign in.")
+        clearTimeout(timeoutId)
+        setLoading(false)
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+        console.log('Signing in user...')
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
+        
+        console.log('Sign in successful, user:', data.user)
         setMessage("Signed in! Redirecting...")
+        
+        // Clear any cached profile data for fresh fetch
+        clearProfileCache()
+        
+        // Try immediate redirect first
+        try {
+          await fetchRoleAndRedirect()
+          clearTimeout(timeoutId)
+        } catch (error) {
+          console.log('Immediate redirect failed, trying with delay...')
+          // If immediate redirect fails, try with a delay
+          setTimeout(async () => {
+            try {
+              await fetchRoleAndRedirect()
+              clearTimeout(timeoutId)
+            } catch (retryError) {
+              console.error('Delayed redirect also failed:', retryError)
+              setError('Login successful but redirect failed. Please refresh the page.')
+              clearTimeout(timeoutId)
+              setLoading(false)
+            }
+          }, 500)
+        }
       }
-      await fetchRoleAndRedirect()
     } catch (err) {
+      console.error('Login error:', err)
       setError(err.message ?? "Authentication failed")
-    } finally {
+      clearTimeout(timeoutId)
       setLoading(false)
     }
   }
 
   useEffect(() => {
     let isMounted = true
+    
+    // Check for existing session on mount
     supabase.auth.getSession().then(async ({ data }) => {
       if (!isMounted) return
       if (data.session) {
+        console.log('Existing session found, redirecting...')
         await fetchRoleAndRedirect()
       }
     })
-    const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    
+    // Listen for auth state changes
+    const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return
-      if (session) {
+      console.log('Auth state change:', event, session)
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in, redirecting...')
         await fetchRoleAndRedirect()
       }
     })
+    
     return () => {
       isMounted = false
       subscription.subscription.unsubscribe()
