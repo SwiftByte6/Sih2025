@@ -29,12 +29,12 @@ export default function Page() {
   })), [reports])
 
   return (
-    <div className='w-full min-h-screen p-4 flex flex-col gap-6 max-w-5xl mx-auto'>
+    <div className='w-full min-h-screen  flex flex-col gap-6 max-w-5xl mx-auto'>
   
 
       <div className='space-y-3'>
-        <h2 className='font-bold text-lg'>Map (Search + Zoom)</h2>
-        <div className='w-full h-[80vh] rounded-2xl overflow-hidden border border-gray-200'>
+        <h2 className='font-bold text-2xl m-3 text-center'>Hazard Map</h2>
+        <div className='w-full h-[80vh]  overflow-hidden '>
           <MapWithSearch markers={markers} />
         </div>
       </div>

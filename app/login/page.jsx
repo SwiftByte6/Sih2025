@@ -1,62 +1,46 @@
+// app/auth/page.jsx
 "use client"
 
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabaseClient"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
-import { getUserProfile, getRedirectPath, clearProfileCache } from "@/lib/auth"
-import { measurePerformance } from "@/lib/performance"
+import { supabase } from "../../lib/supabaseClient"
 
-export default function LoginPage() {
-  const router = useRouter()
+export default function AuthPage() {
+  const router = useRouter() // ← fix router undefined
+  const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [isSignUp, setIsSignUp] = useState(false)
   const [error, setError] = useState("")
   const [message, setMessage] = useState("")
   const [emailError, setEmailError] = useState("")
   const [passwordError, setPasswordError] = useState("")
 
-  async function fetchRoleAndRedirect() {
-    try {
-      console.log('Starting fetchRoleAndRedirect...')
-      const { data: { user } } = await supabase.auth.getUser()
-      console.log('User data:', user)
-      
-      if (!user) {
-        console.log('No user found, returning')
-        return
-      }
-      
-      // Try to get profile with fallback
-      let profile = null
-      try {
-        profile = await getUserProfile(user.id)
-        console.log('Profile data:', profile)
-      } catch (profileError) {
-        console.error('Error fetching profile:', profileError)
-        // Fallback: redirect to user dashboard if profile fetch fails
-        console.log('Profile fetch failed, redirecting to user dashboard as fallback')
-        router.replace('/user/dashboard')
-        return
-      }
-      
-      if (!profile) {
-        console.log('No profile found, redirecting to user dashboard as fallback')
-        router.replace('/user/dashboard')
-        return
-      }
-      
-      const redirectPath = getRedirectPath(profile.role)
-      console.log('Redirecting to:', redirectPath)
-      router.replace(redirectPath)
-    } catch (error) {
-      console.error('Error in fetchRoleAndRedirect:', error)
-      // Fallback: redirect to user dashboard
-      console.log('Redirect failed, using fallback to user dashboard')
-      router.replace('/user/dashboard')
+  async function getUserProfile(userId) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle()
+    if (error) throw error
+    return data
+  }
+
+  function getRedirectPath(role) {
+    switch (role) {
+      case "admin":
+        return "/admin/dashboard"
+      case "driver":
+        return "/driver/dashboard"
+      default:
+        return "/user/dashboard"
     }
+  }
+
+  async function clearProfileCache(userId) {
+    // If you implement caching, clear it here
+    // Placeholder: currently does nothing
   }
 
   async function ensureProfile(userId) {
@@ -67,8 +51,27 @@ export default function LoginPage() {
       .maybeSingle()
     if (!existing) {
       await supabase.from("profiles").insert({ id: userId, role: "user" })
-      // Clear cache to ensure fresh data on next fetch
       clearProfileCache(userId)
+    }
+  }
+
+  async function fetchRoleAndRedirect() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      let profile = null
+      try {
+        profile = await getUserProfile(user.id)
+      } catch {
+        return router.replace("/user/dashboard")
+      }
+
+      const redirectPath = profile ? getRedirectPath(profile.role) : "/user/dashboard"
+      router.replace(redirectPath)
+    } catch (err) {
+      console.error(err)
+      router.replace("/user/dashboard")
     }
   }
 
@@ -79,100 +82,44 @@ export default function LoginPage() {
     setEmailError("")
     setPasswordError("")
     setLoading(true)
-    
-    // Set a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.log('Login timeout reached')
-      setError('Login is taking too long. Please try again.')
-      setLoading(false)
-    }, 10000) // 10 second timeout
-    
+
     try {
-      console.log('Starting login process...')
-      
-      // Basic validation
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailPattern.test(email)) {
-        setEmailError("Enter a valid email address")
-      }
-      if (password.length < 6) {
-        setPasswordError("Password must be at least 6 characters")
-      }
-      if (!emailPattern.test(email) || password.length < 6) {
-        throw new Error("Please fix the form errors")
-      }
+      if (!emailPattern.test(email)) setEmailError("Enter a valid email address")
+      if (password.length < 6) setPasswordError("Password must be at least 6 characters")
+      if (!emailPattern.test(email) || password.length < 6) throw new Error("Please fix the form errors")
 
       if (isSignUp) {
-        console.log('Signing up user...')
         const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
         if (signUpError) throw signUpError
-        const userId = data.user?.id
-        if (userId) await ensureProfile(userId)
+        if (data.user?.id) await ensureProfile(data.user.id)
         setMessage("Account created. Check your email to verify, then sign in.")
-        clearTimeout(timeoutId)
-        setLoading(false)
       } else {
-        console.log('Signing in user...')
         const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
-        
-        console.log('Sign in successful, user:', data.user)
         setMessage("Signed in! Redirecting...")
-        
-        // Clear any cached profile data for fresh fetch
-        clearProfileCache()
-        
-        // Try immediate redirect first
-        try {
-          await fetchRoleAndRedirect()
-          clearTimeout(timeoutId)
-        } catch (error) {
-          console.log('Immediate redirect failed, trying with delay...')
-          // If immediate redirect fails, try with a delay
-          setTimeout(async () => {
-            try {
-              await fetchRoleAndRedirect()
-              clearTimeout(timeoutId)
-            } catch (retryError) {
-              console.error('Delayed redirect also failed:', retryError)
-              setError('Login successful but redirect failed. Please refresh the page.')
-              clearTimeout(timeoutId)
-              setLoading(false)
-            }
-          }, 500)
-        }
+        await fetchRoleAndRedirect()
       }
     } catch (err) {
-      console.error('Login error:', err)
       setError(err.message ?? "Authentication failed")
-      clearTimeout(timeoutId)
+    } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
     let isMounted = true
-    
-    // Check for existing session on mount
+
     supabase.auth.getSession().then(async ({ data }) => {
       if (!isMounted) return
-      if (data.session) {
-        console.log('Existing session found, redirecting...')
-        await fetchRoleAndRedirect()
-      }
+      if (data.session) await fetchRoleAndRedirect()
     })
-    
-    // Listen for auth state changes
+
     const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return
-      console.log('Auth state change:', event, session)
-      
-      if (event === 'SIGNED_IN' && session) {
-        console.log('User signed in, redirecting...')
-        await fetchRoleAndRedirect()
-      }
+      if (event === "SIGNED_IN" && session) await fetchRoleAndRedirect()
     })
-    
+
     return () => {
       isMounted = false
       subscription.subscription.unsubscribe()
@@ -180,56 +127,104 @@ export default function LoginPage() {
   }, [])
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="w-full max-w-md bg-gray-900/70 backdrop-blur-lg rounded-2xl shadow-xl p-8">
-        <h1 className="text-2xl font-bold text-white text-center mb-6">
-          {isSignUp ? "Create an account" : "Welcome back"}
-        </h1>
+    <main className="min-h-screen flex items-center md:justify-center bg-[#F4FEFF] md:px-4">
+      <div className="w-full md:max-w-md h-[100vh] md:h-auto  shadow-lg md:rounded-2xl border border-gray-200 overflow-hidden">
+        <div 
+        onClick={()=>router.push('/')}
+        className="p-4 text-xl h-[20vh] text-black cursor-pointer hover:underline md:hidden">
+          &lt; Back
+        </div>
 
-        <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-          {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
-          {passwordError && <p className="text-red-400 text-xs mt-1">{passwordError}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md disabled:opacity-50 transition"
-          >
-            {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-            {loading
-              ? isSignUp
-                ? "Creating account..."
-                : "Signing in..."
-              : isSignUp
-              ? "Sign up"
-              : "Sign in"}
-          </button>
+        <div className="p-6 md:p-8 bg-[#E0F2FE] border border-gray-400 space-y-12 h-[80vh] md:h-auto rounded-t-[2rem] md:rounded-2xl">
+          <div className="space-y-3">
+            <h1 className="text-2xl font-bold text-center text-gray-900">{isSignUp ? "Create Account" : "Welcome Back"}</h1>
+            <p className="text-center text-gray-600 text-sm mb-6">{isSignUp ? "Enter your details to sign up" : "Enter your details"}</p>
+          </div>
 
-          {error && <p className="text-red-500 text-sm text-center" role="alert" aria-live="polite">{error}</p>}
-          {message && <p className="text-green-400 text-sm text-center" aria-live="polite">{message}</p>}
-        </form>
+          <form onSubmit={onSubmit} className="space-y-7" noValidate>
+            <input
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setEmailError("")
+                setError("")
+              }}
+              className="w-full px-4 py-3  rounded-2xl border border-gray-400 bg-[#93C5FD]/70 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+            {emailError && <p className="text-red-500 text-xs">{emailError}</p>}
 
-        <button
-          onClick={() => setIsSignUp(!isSignUp)}
-          className="mt-6 w-full text-sm text-gray-400 hover:text-white transition"
-        >
-          {isSignUp ? "Already have an account? Sign in" : "New here? Create an account"}
-        </button>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setPasswordError("")
+                setError("")
+              }}
+              className="w-full px-4 py-3 rounded-2xl border border-gray-400 bg-[#93C5FD]/70 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+            {passwordError && <p className="text-red-500 text-xs">{passwordError}</p>}
+
+            <div className="flex items-center justify-between text-xs text-gray-600">
+              <label className="flex items-center space-x-1">
+                <input type="checkbox" className="accent-blue-500" />
+                <span>Remember me</span>
+              </label>
+              <button type="button" className="hover:underline">Forgot Password?</button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex text-xl border border-gray-300 items-center  justify-center px-4 py-3 rounded-full bg-white/70 hover:bg-blue-100 text-black tracking-widest font-semibold  disabled:opacity-50 transition"
+            >
+              {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+              {loading ? (isSignUp ? "Creating..." : "Signing in...") : (isSignUp ? "Sign Up" : "Log In")}
+            </button>
+
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {message && <p className="text-green-600 text-sm text-center">{message}</p>}
+          </form>
+
+          <div className="flex items-center my-6">
+            <hr className="flex-1 border-gray-300" />
+            <span className="px-2 text-xs text-gray-500">Sign in with</span>
+            <hr className="flex-1 border-gray-300" />
+          </div>
+
+          <div className="flex justify-center space-x-12">
+            <button
+              type="button"
+              className="w-10 h-10 flex items-center justify-center rounded-full  hover:bg-gray-100"
+              onClick={async () => {
+                setLoading(true)
+                setError("")
+                const { error } = await supabase.auth.signInWithOAuth({ provider: "google" })
+                if (error) setError(error.message)
+                setLoading(false)
+              }}
+            >
+              <img src="/google.png" alt="Google" className="w-15 h-10" />
+            </button>
+          </div>
+
+          <p className="mt-6 text-center text-sm text-black font-medium">
+            {isSignUp ? (
+              <>
+                Already have an account?{" "}
+                <button onClick={() => setIsSignUp(false)} className="text-blue-600 font-medium hover:underline">Sign In</button>
+              </>
+            ) : (
+              <>
+                Don’t have an account?{" "}
+                <button onClick={() => setIsSignUp(true)} className="text-blue-600 font-medium hover:underline">Sign Up</button>
+              </>
+            )}
+          </p>
+        </div>
       </div>
     </main>
   )

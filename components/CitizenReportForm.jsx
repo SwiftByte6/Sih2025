@@ -44,7 +44,7 @@ const CitizenReportForm = () => {
     setSubmitting(true)
 
     try {
-      const created = await uploadMediaAndCreateReport({
+      await uploadMediaAndCreateReport({
         title: formData.title,
         type: formData.type,
         description: formData.description,
@@ -62,86 +62,130 @@ const CitizenReportForm = () => {
   }
 
   return (
-    <div className="p-4 max-w-lg mx-auto bg-white rounded-2xl shadow-lg">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Report Hazard</h2>
+    <div className="p-4 mx-auto bg-[#F8FCFF] shadow-md border rounded-xl">
+      <h2 className="text-center text-lg font-semibold text-gray-800 mb-4">
+        Report a Hazard
+      </h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Title :
+          </label>
           <input
+            type="text"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            required
             placeholder="Short title (e.g., Flooding near Marine Drive)"
-            className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-sky-400"
+            required
+            className="w-full border border-gray-300 rounded-xl p-2 bg-white placeholder-gray-400 focus:ring-2 focus:ring-sky-400"
           />
         </div>
 
-        {/* Hazard Type (schema-aligned) */}
+        {/* Media */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Hazard Type</label>
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-sky-400"
-          >
-            <option value="">Select Hazard</option>
-            <option value="flood">🌧 Flood</option>
-            <option value="cyclone">🌪 Cyclone/Storm</option>
-            <option value="erosion">🏖 Erosion</option>
-            <option value="pollution">🛢 Pollution</option>
-            <option value="other">⚠️ Other</option>
-          </select>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Add Media :
+          </label>
+          <div className="flex gap-3">
+            <label className="flex-1">
+              <span className="sr-only">Camera</span>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                capture="environment"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div className="w-full text-center py-2 bg-white border rounded-full shadow-sm text-gray-700 cursor-pointer hover:bg-gray-50">
+                Camera
+              </div>
+            </label>
+            <label className="flex-1">
+              <span className="sr-only">Gallery</span>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div className="w-full text-center py-2 bg-white border rounded-full shadow-sm text-gray-700 cursor-pointer hover:bg-gray-50">
+                Gallery
+              </div>
+            </label>
+          </div>
+          {formData.media && (
+            <p className="text-sm text-gray-500 mt-1">Selected: {formData.media.name}</p>
+          )}
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Description :
+          </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            required
             rows="3"
-            placeholder="Describe what you observed..."
-            className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-sky-400"
+            placeholder="Describe about the hazard..."
+            className="w-full border border-gray-300 rounded-xl p-2 bg-[#E6F0FF] placeholder-gray-400 focus:ring-2 focus:ring-sky-400"
+            required
           />
         </div>
 
-        {/* Location */}
+        {/* Hazard Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Location (Auto)</label>
-          {formData.location.lat && formData.location.lng ? (
-            <p className="text-sm text-gray-600">
-              📍 {formData.location.lat.toFixed(4)}, {formData.location.lng.toFixed(4)}
-            </p>
-          ) : (
-            <p className="text-sm text-red-500">⚠️ Location not available</p>
-          )}
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Hazard Type :
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { value: "high_waves", label: "High Waves" },
+              { value: "flood", label: "Flooding" },
+              { value: "tsunami", label: "Tsunami" },
+              { value: "pollution", label: "Pollution" },
+            ].map((hazard) => (
+              <label
+                key={hazard.value}
+                className="flex items-center justify-between px-3 py-2 border rounded-xl bg-white text-gray-700 cursor-pointer hover:bg-gray-50"
+              >
+                {hazard.label}
+                <input
+                  type="radio"
+                  name="type"
+                  value={hazard.value}
+                  checked={formData.type === hazard.value}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-sky-500"
+                />
+              </label>
+            ))}
+          </div>
         </div>
 
-        {/* Media Upload */}
+        {/* Map (Location Preview) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Upload Photo/Video</label>
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-            className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100"
-          />
-          {formData.media && <p className="text-sm mt-1">Selected: {formData.media.name}</p>}
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Map :
+          </label>
+          <div className="w-full h-28 border rounded-xl bg-white flex items-center justify-center text-gray-400 text-sm">
+            {formData.location.lat && formData.location.lng
+              ? `📍 ${formData.location.lat.toFixed(4)}, ${formData.location.lng.toFixed(4)}`
+              : "⚠️ Location not available"}
+          </div>
         </div>
 
         {/* Submit */}
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-sky-600 hover:bg-sky-700 text-white rounded-xl py-2 font-medium shadow-md transition"
+          className="w-full bg-[#D9EFFF] hover:bg-[#C6E0FF] text-sky-700 font-medium py-2 rounded-xl shadow-md transition"
         >
-          {submitting ? "Submitting..." : "Submit Report"}
+          {submitting ? "Submitting..." : "Report Hazard"}
         </button>
       </form>
     </div>

@@ -59,8 +59,8 @@ export default function MapWithSearch({ markers = [] }) {
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <form onSubmit={handleSearch} className="p-2 border-b border-gray-200 flex gap-2 items-center">
+    <div className="w-full h-full flex flex-col px-4 space-y-2">
+      <form onSubmit={handleSearch} className=" mt-4  flex gap-2 items-center">
         <input
           ref={inputRef}
           value={search}
@@ -68,12 +68,12 @@ export default function MapWithSearch({ markers = [] }) {
           placeholder="Search place or address..."
           className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-sky-400"
         />
-        <button disabled={searching} className="px-3 py-2 rounded-lg bg-sky-600 text-white">
+        <button disabled={searching} className="px-3 py-2 rounded-lg bg-white/70 border border-gray-300  text-black">
           {searching ? 'Searching...' : 'Search'}
         </button>
       </form>
       {error && <div className="px-3 py-1 text-sm text-red-600">{error}</div>}
-      <div className="flex-1">
+      <div className="flex-1 rounded-2xl overflow-hidden border border-gray-500">
         <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
