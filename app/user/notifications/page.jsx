@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { AlertTriangle, MapPin, X } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 function severityStyle(sev) {
   const s = (sev || "").toLowerCase();
@@ -13,6 +14,7 @@ function severityStyle(sev) {
 }
 
 export default function Page() {
+  const { t } = useI18n();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -88,15 +90,15 @@ export default function Page() {
     <main className="min-h-screen bg-surface p-4 pb-24">
       <div className="mx-auto max-w-md space-y-4">
         <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
-          <h1 className="text-lg font-bold text-foreground">Alerts</h1>
-          <p className="text-sm text-foreground/70">Stay informed about hazards in your area.</p>
+          <h1 className="text-lg font-bold text-foreground">{t('user.notifications')}</h1>
+          <p className="text-sm text-foreground/70">{t('user.alerts_tagline', { default: 'Stay informed about hazards in your area.' })}</p>
         </div>
 
-        {loading && <p className="text-center text-foreground/70 text-sm">Loading…</p>}
+        {loading && <p className="text-center text-foreground/70 text-sm">{t('common.loading', { default: 'Loading…' })}</p>}
         {!!error && <p className="text-center text-red-600 text-sm">{error}</p>}
 
         {!loading && alerts.length === 0 && (
-          <p className="text-center text-foreground/70 text-sm">🎉 No active alerts.</p>
+          <p className="text-center text-foreground/70 text-sm">🎉 {t('user.no_active_alerts', { default: 'No active alerts.' })}</p>
         )}
 
         {grouped.critical.map(renderCard)}

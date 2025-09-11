@@ -1,0 +1,75 @@
+{
+  "app": {
+    "title": "CoastSafe",
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "signin": "Sign In",
+    "signup_title": "Create Account",
+    "welcome_back": "Welcome Back",
+    "signup_subtitle": "Enter your details to sign up",
+    "signin_subtitle": "Enter your details",
+    "email_placeholder": "Enter email",
+    "password_placeholder": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot Password?",
+    "creating": "Creating...",
+    "signing_in": "Signing in...",
+    "sign_in_with": "Sign in with",
+    "already_have": "Already have an account?",
+    "dont_have": "Don’t have an account?"
+  },
+  "user": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "map": "Map",
+    "report": "Report",
+    "history": "History",
+    "recent_reports": "Recent Reports",
+    "no_reports": "No Reports Yet",
+    "alerts_tagline": "Stay informed about hazards in your area.",
+    "no_active_alerts": "No active alerts.",
+    "citizen_reporter": "Citizen Reporter",
+    "edit_profile": "Edit Profile",
+    "report_history": "Report History"
+  },
+  "report": {
+    "title": "Report a Hazard",
+    "submit": "Report Hazard",
+    "form": {
+      "title": "Title :",
+      "title_placeholder": "Short title (e.g., Flooding near Marine Drive)",
+      "media": "Add Media :",
+      "camera": "Camera",
+      "gallery": "Gallery",
+      "selected": "Selected:",
+      "description": "Description :",
+      "description_placeholder": "Describe about the hazard...",
+      "hazard_type": "Hazard Type :",
+      "map": "Map :",
+      "location_unavailable": "⚠️ Location not available"
+    }
+  },
+  "hazards": {
+    "high_waves": "High Waves",
+    "flood": "Flooding",
+    "tsunami": "Tsunami",
+    "pollution": "Pollution"
+  },
+  "status": {
+    "pending": "Pending",
+    "verified": "Verified"
+  },
+  "common": {
+    "submitting": "Submitting...",
+    "loading": "Loading…"
+  }
+}
+

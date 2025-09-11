@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { supabaseServerClient } from '@/lib/supabaseServer'
 import { getUserProfileServer } from '@/lib/authServer'
 import Link from 'next/link'
+import Trans from '@/components/Trans'
 
 export default async function Page() {
   const cookieStore = cookies()
@@ -36,25 +37,25 @@ export default async function Page() {
   return (
     <div className="w-full min-h-screen p-4 flex flex-col gap-6 bg-surface">
       {/* Header */}
-      <h1 className="font-bold text-xl border-b pb-4 border-border">Home</h1>
+      <h1 className="font-bold text-xl border-b pb-4 border-border"><Trans k="user.dashboard">Dashboard</Trans></h1>
 
       {/* Action Buttons */}
       <Link href="/user/report" className="w-full px-4 py-4 rounded-3xl border border-border bg-brand/70 font-bold text-center">
-        Report Hazard
+        <Trans k="user.report">Report</Trans>
       </Link>
 
       <div className="flex gap-4">
         <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold">
-          View Map
+          <Trans k="user.map">Map</Trans>
         </button>
         <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold">
-          View History
+          <Trans k="user.history">History</Trans>
         </button>
       </div>
 
       {/* Recent Reports */}
       <div className="flex flex-col gap-4">
-        <h2 className="font-bold text-lg">Recent Reports</h2>
+        <h2 className="font-bold text-lg"><Trans k="user.recent_reports">Recent Reports</Trans></h2>
 
         {reports.length > 0 ? (
           <div className="flex flex-col gap-3">
@@ -72,7 +73,7 @@ export default async function Page() {
           </div>
         ) : (
           <div className="w-full h-40 bg-gray-200 rounded-2xl flex justify-center items-center">
-            No Reports Yet
+            <Trans k="user.no_reports">No Reports Yet</Trans>
           </div>
         )}
       </div>

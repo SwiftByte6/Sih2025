@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { useI18n } from '@/contexts/I18nContext'
 // import icons removed, using images instead
 import { useRouter } from 'next/navigation';
 
@@ -7,31 +8,32 @@ import { useRouter } from 'next/navigation';
 
 const BottomNav = () => {
   const router=useRouter();
+  const { t } = useI18n();
   const NavItem=[
   {
     img: "/home.png",
-    name: "Home",
+    name: t('app.home'),
     route: "/user/dashboard"
   },
 
   {
     img: "/map.png",
-    name: "Map",
+    name: t('user.map'),
     route: "/user/map"
   },
     {
     img: "/add.png",
-    name: "Report",
+    name: t('user.report'),
     route: "/user/report"
   },
   {
     img: "/bell.png",
-    name: "Notifications",
+    name: t('user.notifications'),
     route: "/user/notifications"
   },
   {
     img: "/profile.png",
-    name: "Profile",
+    name: t('user.profile'),
     route: "/user/profile"
   },
   ]

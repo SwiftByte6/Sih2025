@@ -1,0 +1,75 @@
+{
+  "app": {
+    "title": "कोस्टसेफ",
+    "home": "मुखपृष्ठ",
+    "about": "हमारे बारे में",
+    "services": "सेवाएँ",
+    "contact": "संपर्क"
+  },
+  "auth": {
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "signup": "साइन अप",
+    "signin": "साइन इन",
+    "signup_title": "खाता बनाएँ",
+    "welcome_back": "वापसी पर स्वागत है",
+    "signup_subtitle": "साइन अप करने के लिए विवरण भरें",
+    "signin_subtitle": "अपनी जानकारी दर्ज करें",
+    "email_placeholder": "ईमेल दर्ज करें",
+    "password_placeholder": "पासवर्ड",
+    "remember_me": "मुझे याद रखें",
+    "forgot_password": "पासवर्ड भूल गए?",
+    "creating": "बना रहे हैं...",
+    "signing_in": "साइन इन हो रहा है...",
+    "sign_in_with": "इनसे साइन इन करें",
+    "already_have": "क्या आपके पास खाता है?",
+    "dont_have": "क्या आपका खाता नहीं है?"
+  },
+  "user": {
+    "dashboard": "डैशबोर्ड",
+    "profile": "प्रोफ़ाइल",
+    "notifications": "सूचनाएँ",
+    "map": "मानचित्र",
+    "report": "रिपोर्ट",
+    "history": "इतिहास",
+    "recent_reports": "हाल की रिपोर्टें",
+    "no_reports": "अभी तक कोई रिपोर्ट नहीं",
+    "alerts_tagline": "अपने क्षेत्र में खतरों के बारे में सूचित रहें।",
+    "no_active_alerts": "कोई सक्रिय अलर्ट नहीं।",
+    "citizen_reporter": "नागरिक रिपोर्टर",
+    "edit_profile": "प्रोफ़ाइल संपादित करें",
+    "report_history": "रिपोर्ट इतिहास"
+  },
+  "report": {
+    "title": "खतरे की रिपोर्ट करें",
+    "submit": "रिपोर्ट सबमिट करें",
+    "form": {
+      "title": "शीर्षक :",
+      "title_placeholder": "संक्षिप्त शीर्षक (जैसे, मरीन ड्राइव के पास बाढ़)",
+      "media": "मीडिया जोड़ें :",
+      "camera": "कैमरा",
+      "gallery": "गैलरी",
+      "selected": "चयनित:",
+      "description": "विवरण :",
+      "description_placeholder": "खतरे के बारे में बताइए...",
+      "hazard_type": "खतरे का प्रकार :",
+      "map": "मानचित्र :",
+      "location_unavailable": "⚠️ स्थान उपलब्ध नहीं"
+    }
+  },
+  "hazards": {
+    "high_waves": "ऊँची लहरें",
+    "flood": "बाढ़",
+    "tsunami": "सुनामी",
+    "pollution": "प्रदूषण"
+  },
+  "status": {
+    "pending": "लंबित",
+    "verified": "सत्यापित"
+  },
+  "common": {
+    "submitting": "सबमिट हो रहा है...",
+    "loading": "लोड हो रहा है..."
+  }
+}
+

@@ -2,12 +2,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useI18n } from "@/contexts/I18nContext"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { supabase } from "../../lib/supabaseClient"
 
 export default function AuthPage() {
   const router = useRouter() // ← fix router undefined
+  const { t } = useI18n()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -137,14 +139,14 @@ export default function AuthPage() {
 
         <div className="p-6 md:p-8 bg-[#E0F2FE] border border-gray-400 space-y-12 h-[80vh] md:h-auto rounded-t-[2rem] md:rounded-2xl">
           <div className="space-y-3">
-            <h1 className="text-2xl font-bold text-center text-gray-900">{isSignUp ? "Create Account" : "Welcome Back"}</h1>
-            <p className="text-center text-gray-600 text-sm mb-6">{isSignUp ? "Enter your details to sign up" : "Enter your details"}</p>
+            <h1 className="text-2xl font-bold text-center text-gray-900">{isSignUp ? t('auth.signup_title', { default: 'Create Account' }) : t('auth.welcome_back', { default: 'Welcome Back' })}</h1>
+            <p className="text-center text-gray-600 text-sm mb-6">{isSignUp ? t('auth.signup_subtitle', { default: 'Enter your details to sign up' }) : t('auth.signin_subtitle', { default: 'Enter your details' })}</p>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-7" noValidate>
             <input
               type="email"
-              placeholder="Enter email"
+              placeholder={t('auth.email_placeholder', { default: 'Enter email' })}
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value)
@@ -157,7 +159,7 @@ export default function AuthPage() {
 
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t('auth.password_placeholder', { default: 'Password' })}
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value)
@@ -171,9 +173,9 @@ export default function AuthPage() {
             <div className="flex items-center justify-between text-xs text-gray-600">
               <label className="flex items-center space-x-1">
                 <input type="checkbox" className="accent-blue-500" />
-                <span>Remember me</span>
+                <span>{t('auth.remember_me', { default: 'Remember me' })}</span>
               </label>
-              <button type="button" className="hover:underline">Forgot Password?</button>
+              <button type="button" className="hover:underline">{t('auth.forgot_password', { default: 'Forgot Password?' })}</button>
             </div>
 
             <button
@@ -182,7 +184,7 @@ export default function AuthPage() {
               className="w-full flex text-xl border border-gray-300 items-center  justify-center px-4 py-3 rounded-full bg-white/70 hover:bg-blue-100 text-black tracking-widest font-semibold  disabled:opacity-50 transition"
             >
               {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-              {loading ? (isSignUp ? "Creating..." : "Signing in...") : (isSignUp ? "Sign Up" : "Log In")}
+              {loading ? (isSignUp ? t('auth.creating', { default: 'Creating...' }) : t('auth.signing_in', { default: 'Signing in...' })) : (isSignUp ? t('auth.signup', { default: 'Sign Up' }) : t('auth.login', { default: 'Log In' }))}
             </button>
 
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -191,7 +193,7 @@ export default function AuthPage() {
 
           <div className="flex items-center my-6">
             <hr className="flex-1 border-gray-300" />
-            <span className="px-2 text-xs text-gray-500">Sign in with</span>
+            <span className="px-2 text-xs text-gray-500">{t('auth.sign_in_with', { default: 'Sign in with' })}</span>
             <hr className="flex-1 border-gray-300" />
           </div>
 
@@ -214,13 +216,13 @@ export default function AuthPage() {
           <p className="mt-6 text-center text-sm text-black font-medium">
             {isSignUp ? (
               <>
-                Already have an account?{" "}
-                <button onClick={() => setIsSignUp(false)} className="text-blue-600 font-medium hover:underline">Sign In</button>
+                {t('auth.already_have', { default: 'Already have an account?' })}{" "}
+                <button onClick={() => setIsSignUp(false)} className="text-blue-600 font-medium hover:underline">{t('auth.signin', { default: 'Sign In' })}</button>
               </>
             ) : (
               <>
-                Don’t have an account?{" "}
-                <button onClick={() => setIsSignUp(true)} className="text-blue-600 font-medium hover:underline">Sign Up</button>
+                {t('auth.dont_have', { default: 'Don’t have an account?' })}{" "}
+                <button onClick={() => setIsSignUp(true)} className="text-blue-600 font-medium hover:underline">{t('auth.signup', { default: 'Sign Up' })}</button>
               </>
             )}
           </p>

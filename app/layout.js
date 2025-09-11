@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@/contexts/UserContext";
+import { I18nProvider } from "@/contexts/I18nContext";
 import { ToastProvider } from "@/components/ToastProvider";
 import PWAInit from "@/components/PWAInit";
 
@@ -30,12 +31,14 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserProvider>
-          <ToastProvider>
-            <PWAInit />
-            {children}
-          </ToastProvider>
-        </UserProvider>
+        <I18nProvider>
+          <UserProvider>
+            <ToastProvider>
+              <PWAInit />
+              {children}
+            </ToastProvider>
+          </UserProvider>
+        </I18nProvider>
       </body>
     </html>
   );
