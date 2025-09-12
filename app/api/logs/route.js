@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-function getSupabaseServerClient() {
-  const cookieStore = cookies()
+async function getSupabaseServerClient() {
+  const cookieStore = await cookies()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
   return createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -21,7 +21,7 @@ function getSupabaseServerClient() {
 }
 
 export async function GET() {
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient()
   const { data, error } = await supabase
     .from('system_logs')
     .select('id, message, level, created_at')

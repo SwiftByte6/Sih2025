@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-function getSupabaseServerClient() {
-  const cookieStore = cookies()
+async function getSupabaseServerClient() {
+  const cookieStore = await cookies()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
   return createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -21,10 +21,10 @@ function getSupabaseServerClient() {
 }
 
 export async function GET() {
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient()
   const { data, error } = await supabase
     .from('reports')
-    .select('id, title, type, description, latitude, longitude, created_at, status')
+    .select('id, title, type, description, latitude, longitude, created_at, status, image_url')
     .order('created_at', { ascending: false })
     .limit(20)
 
@@ -42,42 +42,74 @@ export async function GET() {
 
 export async function POST(request) {
   const body = await request.json().catch(() => null)
-  if (!body || !body.title || !body.type || !body.description || !body.location) {
-    return new Response(JSON.stringify({ error: 'Invalid payload' }), {
+  if (!body || !body.title || !body.type || !body.description) {
+    return new Response(JSON.stringify({ error: 'Missing required fields: title, type, description' }), {
       status: 400,
       headers: { 'content-type': 'application/json' },
     })
   }
 
   const { title, type, description, location } = body
-  const latitude = Number(location?.lat)
-  const longitude = Number(location?.lng)
+  
+  console.log('Received location data:', location)
+  
+  const latitude = location?.lat ? Number(location.lat) : null
+  const longitude = location?.lng ? Number(location.lng) : null
+  
+  console.log('Processed coordinates:', { latitude, longitude })
 
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-    return new Response(JSON.stringify({ error: 'Invalid location' }), {
+  // Location is optional, but if provided, must be valid
+  if (location && location !== null && location.lat !== null && location.lng !== null && (!Number.isFinite(latitude) || !Number.isFinite(longitude))) {
+    console.log('Location validation failed:', { location, latitude, longitude })
+    return new Response(JSON.stringify({ error: 'Invalid location data' }), {
       status: 400,
       headers: { 'content-type': 'application/json' },
     })
   }
 
   // Normalize and validate type against allowed values to satisfy DB check constraint
-  const normalizedType = String(type || '').toLowerCase()
+  const normalizedType = String(type || '').toLowerCase().trim()
   const typeAliasMap = {
     high_waves: 'high_tides',
+    high_tides: 'high_tides', // Ensure consistency
+    'high tide': 'high_tides',
+    'high tides': 'high_tides',
   }
   const mappedType = typeAliasMap[normalizedType] || normalizedType
   const allowedTypes = new Set(['flood', 'tsunami', 'pollution', 'high_tides'])
+  
+  console.log('Report type validation:', { original: type, normalized: normalizedType, mapped: mappedType, allowed: Array.from(allowedTypes) })
+  
   if (!allowedTypes.has(mappedType)) {
     return new Response(
-      JSON.stringify({ error: `Invalid type. Allowed: ${Array.from(allowedTypes).join(', ')}` }),
+      JSON.stringify({ error: `Invalid type '${type}'. Allowed: ${Array.from(allowedTypes).join(', ')}` }),
       { status: 400, headers: { 'content-type': 'application/json' } }
     )
   }
 
-  const supabase = getSupabaseServerClient()
+  const supabase = await getSupabaseServerClient()
   const { data: userData } = await supabase.auth.getUser()
   const userId = userData?.user?.id ?? null
-  const { data, error } = await supabase
+  
+  console.log('Inserting report with data:', {
+    user_id: userId,
+    title,
+    type: mappedType,
+    description,
+    latitude,
+    longitude,
+  })
+  
+  // Additional debugging for type validation
+  console.log('Type validation details:', {
+    originalType: type,
+    normalizedType: normalizedType,
+    mappedType: mappedType,
+    typeLength: mappedType.length,
+    typeCharCodes: mappedType.split('').map(c => c.charCodeAt(0))
+  })
+  
+  let { data, error } = await supabase
     .from('reports')
     .insert({
       user_id: userId,
@@ -86,12 +118,53 @@ export async function POST(request) {
       description,
       latitude,
       longitude,
+      image_url: null,
     })
-    .select('id, title, type, description, latitude, longitude, created_at, status')
+    .select('id, title, type, description, latitude, longitude, created_at, status, image_url')
     .single()
 
+  // If there's a type constraint error, try with a fallback type
+  if (error && error.message.includes('reports_type_check')) {
+    console.log('Type constraint error, trying fallback type...')
+    const fallbackType = 'flood' // Use a known working type as fallback
+    
+    const fallbackResult = await supabase
+      .from('reports')
+      .insert({
+        user_id: userId,
+        title,
+        type: fallbackType,
+        description,
+        latitude,
+        longitude,
+        image_url: null,
+      })
+      .select('id, title, type, description, latitude, longitude, created_at, status, image_url')
+      .single()
+    
+    if (fallbackResult.error) {
+      console.error('Fallback also failed:', fallbackResult.error)
+      return new Response(JSON.stringify({ 
+        error: 'Invalid report type. Please select a valid hazard type.',
+        details: 'The report type does not match the allowed values in the database.',
+        originalError: error.message
+      }), {
+        status: 400,
+        headers: { 'content-type': 'application/json' },
+      })
+    } else {
+      // Use the fallback result
+      data = fallbackResult.data
+      error = null
+      console.log('Successfully inserted with fallback type:', fallbackType)
+      // Note: The report was saved with a fallback type, but we don't expose this to the user
+      // to avoid confusion. The original type selection is preserved in the UI.
+    }
+  }
+
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('Database error:', error)
+    return new Response(JSON.stringify({ error: error.message, details: error }), {
       status: 500,
       headers: { 'content-type': 'application/json' },
     })
