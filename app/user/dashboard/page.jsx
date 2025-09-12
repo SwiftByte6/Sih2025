@@ -40,13 +40,22 @@ export default async function Page() {
         <Trans k="user.report">Report</Trans>
       </Link>
 
-      <div className="flex gap-4">
-        <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold">
+      <div className="grid grid-cols-2 gap-4">
+        <Link href="/user/map" className="px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold text-center">
           <Trans k="user.map">Map</Trans>
-        </button>
-        <button className="flex-1 px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold">
+        </Link>
+        <Link href="/user/profile" className="px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold text-center">
           <Trans k="user.history">History</Trans>
-        </button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Link href="/user/analytics" className="px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold text-center">
+          Analytics
+        </Link>
+        <Link href="/user/notifications" className="px-4 py-4 rounded-3xl bg-white/70 border border-border font-bold text-center">
+          <Trans k="user.notifications">Alerts</Trans>
+        </Link>
       </div>
 
       {/* Recent Reports */}

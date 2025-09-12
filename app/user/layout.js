@@ -1,4 +1,5 @@
 import BottomNav from "@/components/BottomNav";
+import ConnectionStatus from "@/components/ConnectionStatus";
 import { Geist, Geist_Mono } from "next/font/google";
 
 
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ConnectionStatus />
         <div className="pb-[10vh]">
           {children}
         </div>

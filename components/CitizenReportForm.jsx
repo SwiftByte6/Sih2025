@@ -190,16 +190,8 @@ const CitizenReportForm = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('report.title', { default: 'Report a Hazard' })}</h1>
-          <p className="text-gray-600">Help keep your community safe by reporting hazards</p>
-        </div>
-
+      
+        
         {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -248,10 +240,16 @@ const CitizenReportForm = () => {
                 style={{ backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")' }}
                 required
               >
+                <option value="tsunami">{t('hazards.tsunami', { default: 'Tsunami' })}</option>
+                <option value="storm_surge">{t('hazards.storm_surge', { default: 'Storm Surge' })}</option>
+                <option value="high_waves">{t('hazards.high_waves', { default: 'High Waves' })}</option>
+                <option value="swell_surge">{t('hazards.swell_surge', { default: 'Swell Surge' })}</option>
+                <option value="coastal_current">{t('hazards.coastal_current', { default: 'Coastal Current' })}</option>
                 <option value="flood">{t('hazards.flood', { default: 'Flood' })}</option>
                 <option value="cyclone">{t('hazards.cyclone', { default: 'Cyclone' })}</option>
                 <option value="erosion">{t('hazards.erosion', { default: 'Erosion' })}</option>
                 <option value="pollution">{t('hazards.pollution', { default: 'Pollution' })}</option>
+                <option value="abnormal_sea">{t('hazards.abnormal_sea', { default: 'Abnormal Sea Behavior' })}</option>
                 <option value="other">{t('hazards.other', { default: 'Other' })}</option>
               </select>
             </div>

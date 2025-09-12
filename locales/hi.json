@@ -58,10 +58,17 @@
     }
   },
   "hazards": {
-    "high_waves": "ऊँची लहरें",
-    "flood": "बाढ़",
     "tsunami": "सुनामी",
-    "pollution": "प्रदूषण"
+    "storm_surge": "तूफानी लहर",
+    "high_waves": "ऊँची लहरें",
+    "swell_surge": "स्वेल सर्ज",
+    "coastal_current": "तटीय धारा",
+    "flood": "बाढ़",
+    "cyclone": "चक्रवात",
+    "erosion": "कटाव",
+    "pollution": "प्रदूषण",
+    "abnormal_sea": "असामान्य समुद्री व्यवहार",
+    "other": "अन्य"
   },
   "status": {
     "pending": "लंबित",
@@ -69,7 +76,38 @@
   },
   "common": {
     "submitting": "सबमिट हो रहा है...",
-    "loading": "लोड हो रहा है..."
+    "loading": "लोड हो रहा है...",
+    "saving": "सेव हो रहा है...",
+    "email": "ईमेल"
+  },
+  "analytics": {
+    "title": "विश्लेषण डैशबोर्ड",
+    "overview": "अवलोकन",
+    "map_view": "मानचित्र दृश्य",
+    "social_media": "सोशल मीडिया",
+    "total_reports": "कुल रिपोर्टें",
+    "verified_reports": "सत्यापित रिपोर्टें",
+    "recent_activity": "हाल की गतिविधि",
+    "most_common": "सबसे आम",
+    "hazard_distribution": "खतरे का प्रकार वितरण",
+    "filters": "फिल्टर",
+    "location": "स्थान",
+    "hazard_type": "खतरे का प्रकार",
+    "date_range": "तिथि सीमा",
+    "all_locations": "सभी स्थान",
+    "all_types": "सभी प्रकार",
+    "last_24_hours": "पिछले 24 घंटे",
+    "last_7_days": "पिछले 7 दिन",
+    "last_30_days": "पिछले 30 दिन",
+    "last_90_days": "पिछले 90 दिन"
+  },
+  "offline": {
+    "offline": "ऑफलाइन",
+    "syncing": "सिंक हो रहा है...",
+    "pending_sync": "सिंक लंबित",
+    "all_synced": "सभी सिंक हो गए",
+    "report_stored_offline": "रिपोर्ट ऑफलाइन संग्रहीत की गई और कनेक्शन बहाल होने पर सिंक होगी",
+    "upload_failed_offline": "अपलोड विफल, रिपोर्ट पुनः प्रयास के लिए ऑफलाइन संग्रहीत की गई"
   }
 }
 

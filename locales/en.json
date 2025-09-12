@@ -58,10 +58,17 @@
     }
   },
   "hazards": {
-    "high_waves": "High Waves",
-    "flood": "Flooding",
     "tsunami": "Tsunami",
-    "pollution": "Pollution"
+    "storm_surge": "Storm Surge",
+    "high_waves": "High Waves",
+    "swell_surge": "Swell Surge",
+    "coastal_current": "Coastal Current",
+    "flood": "Flood",
+    "cyclone": "Cyclone",
+    "erosion": "Erosion",
+    "pollution": "Pollution",
+    "abnormal_sea": "Abnormal Sea Behavior",
+    "other": "Other"
   },
   "status": {
     "pending": "Pending",
@@ -69,7 +76,38 @@
   },
   "common": {
     "submitting": "Submitting...",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "saving": "Saving...",
+    "email": "Email"
+  },
+  "analytics": {
+    "title": "Analytics Dashboard",
+    "overview": "Overview",
+    "map_view": "Map View",
+    "social_media": "Social Media",
+    "total_reports": "Total Reports",
+    "verified_reports": "Verified Reports",
+    "recent_activity": "Recent Activity",
+    "most_common": "Most Common",
+    "hazard_distribution": "Hazard Type Distribution",
+    "filters": "Filters",
+    "location": "Location",
+    "hazard_type": "Hazard Type",
+    "date_range": "Date Range",
+    "all_locations": "All Locations",
+    "all_types": "All Types",
+    "last_24_hours": "Last 24 Hours",
+    "last_7_days": "Last 7 Days",
+    "last_30_days": "Last 30 Days",
+    "last_90_days": "Last 90 Days"
+  },
+  "offline": {
+    "offline": "Offline",
+    "syncing": "Syncing...",
+    "pending_sync": "pending sync",
+    "all_synced": "All synced",
+    "report_stored_offline": "Report stored offline and will be synced when connection is restored",
+    "upload_failed_offline": "Upload failed, report stored offline for retry"
   }
 }
 
