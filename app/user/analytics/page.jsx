@@ -135,16 +135,28 @@ export default function AnalyticsPage() {
   })
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Load reports data
+  // Load analytics data using the new analytics service
   useEffect(() => {
     let isMounted = true
     
-    const loadReports = async () => {
+    const loadAnalytics = async () => {
       try {
         setLoading(true)
-        const data = await fetchRecentReports(100) // Get more reports for analytics
-        if (isMounted) {
-          setReports(data)
+        const params = new URLSearchParams({
+          type: 'combined',
+          ...filters
+        })
+        
+        const response = await fetch(`/api/analytics?${params}`)
+        const result = await response.json()
+        
+        if (result.success && isMounted) {
+          // Transform the data to match the existing structure
+          const reportData = result.data.reports
+          setReports(reportData.summary ? [] : result.data.reports) // Fallback for compatibility
+          setError('')
+        } else if (isMounted) {
+          setError(result.error || 'Failed to load analytics')
         }
       } catch (err) {
         if (isMounted) {
@@ -157,9 +169,9 @@ export default function AnalyticsPage() {
       }
     }
 
-    loadReports()
+    loadAnalytics()
     return () => { isMounted = false }
-  }, [])
+  }, [filters])
 
   // Filter reports based on current filters
   const filteredReports = useMemo(() => {
