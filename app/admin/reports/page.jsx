@@ -4,7 +4,7 @@ import { getUserProfileServer } from '@/lib/authServer'
 import StatusSelect from '@/components/admin/StatusSelect'
 
 export default async function Page() {
-  const supabase = supabaseServerClient()
+  const supabase = await supabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
   const profile = await getUserProfileServer(user.id)

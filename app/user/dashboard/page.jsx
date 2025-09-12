@@ -1,14 +1,12 @@
 // app/user/dashboard/page.jsx
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 import { supabaseServerClient } from '@/lib/supabaseServer'
-import { getUserProfileServer } from '@/lib/authServer'
+import { getUserProfileServer, getRedirectPath } from '@/lib/authServer'
 import Link from 'next/link'
 import Trans from '@/components/Trans'
 
 export default async function Page() {
-  const cookieStore = cookies()
-  const supabase = supabaseServerClient(cookieStore)
+  const supabase = await supabaseServerClient()
 
   const {
     data: { user },
@@ -16,14 +14,12 @@ export default async function Page() {
 
   if (!user) redirect('/login')
 
-  const profile = await getUserProfileServer(user.id, cookieStore)
+  const profile = await getUserProfileServer(user.id)
   if (!profile) redirect('/login')
 
-  const role = profile.role?.toLowerCase()
-
-  if (role === 'admin') redirect('/admin/dashboard')
-  if (role === 'analyst') redirect('/analyst/dashboard')
-  if (role === 'official') redirect('/official/dashboard')
+  const role = profile.role
+  const target = getRedirectPath(role)
+  if (target !== '/user/dashboard') redirect(target)
 
   // Load recent reports for this user
   const { data: reportsData } = await supabase

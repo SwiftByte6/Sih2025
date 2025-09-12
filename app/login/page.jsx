@@ -6,10 +6,12 @@ import { useI18n } from "@/contexts/I18nContext"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { supabase } from "../../lib/supabaseClient"
+import { useToast } from "@/components/ToastProvider"
 
 export default function AuthPage() {
   const router = useRouter() // ← fix router undefined
   const { t } = useI18n()
+  const { toast } = useToast()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -19,25 +21,9 @@ export default function AuthPage() {
   const [emailError, setEmailError] = useState("")
   const [passwordError, setPasswordError] = useState("")
 
-  async function getUserProfile(userId) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle()
-    if (error) throw error
-    return data
-  }
-
-  function getRedirectPath(role) {
-    switch (role) {
-      case "admin":
-        return "/admin/dashboard"
-      case "driver":
-        return "/driver/dashboard"
-      default:
-        return "/user/dashboard"
-    }
+  // Fast redirect helper: let server-side routing/middleware finalize role
+  function redirectToDashboard() {
+    router.replace("/user/dashboard")
   }
 
   async function clearProfileCache(userId) {
@@ -57,25 +43,7 @@ export default function AuthPage() {
     }
   }
 
-  async function fetchRoleAndRedirect() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      let profile = null
-      try {
-        profile = await getUserProfile(user.id)
-      } catch {
-        return router.replace("/user/dashboard")
-      }
-
-      const redirectPath = profile ? getRedirectPath(profile.role) : "/user/dashboard"
-      router.replace(redirectPath)
-    } catch (err) {
-      console.error(err)
-      router.replace("/user/dashboard")
-    }
-  }
+  // Remove redundant profile fetches on client to improve redirect speed
 
   async function onSubmit(e) {
     e.preventDefault()
@@ -100,7 +68,8 @@ export default function AuthPage() {
         const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
         setMessage("Signed in! Redirecting...")
-        await fetchRoleAndRedirect()
+        toast({ title: 'Redirecting', description: 'You are signed in. Taking you to your dashboard...', variant: 'success', duration: 1500 })
+        setTimeout(() => redirectToDashboard(), 250)
       }
     } catch (err) {
       setError(err.message ?? "Authentication failed")
@@ -114,12 +83,18 @@ export default function AuthPage() {
 
     supabase.auth.getSession().then(async ({ data }) => {
       if (!isMounted) return
-      if (data.session) await fetchRoleAndRedirect()
+      if (data.session) {
+        toast({ title: 'Redirecting', description: 'You are already signed in.', variant: 'success', duration: 1500 })
+        setTimeout(() => redirectToDashboard(), 250)
+      }
     })
 
     const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return
-      if (event === "SIGNED_IN" && session) await fetchRoleAndRedirect()
+      if (event === "SIGNED_IN" && session) {
+        toast({ title: 'Redirecting', description: 'Signed in successfully.', variant: 'success', duration: 1500 })
+        setTimeout(() => redirectToDashboard(), 250)
+      }
     })
 
     return () => {

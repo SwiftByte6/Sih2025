@@ -60,6 +60,20 @@ export async function POST(request) {
     })
   }
 
+  // Normalize and validate type against allowed values to satisfy DB check constraint
+  const normalizedType = String(type || '').toLowerCase()
+  const typeAliasMap = {
+    high_waves: 'high_tides',
+  }
+  const mappedType = typeAliasMap[normalizedType] || normalizedType
+  const allowedTypes = new Set(['flood', 'tsunami', 'pollution', 'high_tides'])
+  if (!allowedTypes.has(mappedType)) {
+    return new Response(
+      JSON.stringify({ error: `Invalid type. Allowed: ${Array.from(allowedTypes).join(', ')}` }),
+      { status: 400, headers: { 'content-type': 'application/json' } }
+    )
+  }
+
   const supabase = getSupabaseServerClient()
   const { data: userData } = await supabase.auth.getUser()
   const userId = userData?.user?.id ?? null
@@ -68,7 +82,7 @@ export async function POST(request) {
     .insert({
       user_id: userId,
       title,
-      type,
+      type: mappedType,
       description,
       latitude,
       longitude,

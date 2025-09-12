@@ -6,9 +6,13 @@ import { useRouter } from 'next/navigation';
 
 
 
+
 const BottomNav = () => {
+
+
   const router=useRouter();
   const { t } = useI18n();
+
   const NavItem=[
   {
     img: "/home.png",
@@ -47,7 +51,7 @@ const BottomNav = () => {
           className='flex flex-col justify-center items-center px-2 focus:outline-none hover:text-blue-600 transition-colors font-medium text-xs text-gray-700 active:scale-95'
           style={{ minWidth: 60 }}
         >
-            <img src={item.img} alt={item.name} className="w-8 h-8 mb-1" />
+            <img src={item.img} alt={item.name} className="w-7 h-7 mb-1" />
             <span className="mt-1">{item.name}</span>
         </button>
       ))}

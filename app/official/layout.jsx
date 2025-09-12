@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, Bell, LayoutGrid, FileText, Siren, ScrollText, ClipboardList, User } from 'lucide-react'
+import LogoutButton from '@/components/LogoutButton'
 
 function DesktopSidebar() {
   const pathname = usePathname()
@@ -24,11 +25,14 @@ function DesktopSidebar() {
               <Icon size={18} />
               <span>{label}</span>
             </Link>
+            
           )
         })}
       </nav>
+      <LogoutButton/>
       <div className="p-4 border-t border-gray-800 text-sm text-gray-300">
         Official Console
+       
       </div>
     </aside>
   )

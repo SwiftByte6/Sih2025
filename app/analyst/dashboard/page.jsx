@@ -1,10 +1,23 @@
 import { supabaseServerClient } from '@/lib/supabaseServer'
+import { redirect } from 'next/navigation'
+import { getUserProfileServer, getRedirectPath } from '@/lib/authServer'
 import MapWidget from '@/components/MapWidget'
 import { AlertTriangle, CheckCircle2, Clock, Megaphone } from 'lucide-react'
 
 export default async function AnalystDashboardPage() {
+  // Auth and role guard
+  const supabase = await supabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  const profile = await getUserProfileServer(user.id)
+  if (!profile) redirect('/login')
+  const role = profile.role
+  if (role !== 'analyst') {
+    const target = getRedirectPath(role)
+    redirect(target)
+  }
+
   // Data for cards
-  const supabase = supabaseServerClient()
   const today = new Date().toISOString().slice(0, 10)
   const { count: totalToday } = await supabase
     .from('reports')

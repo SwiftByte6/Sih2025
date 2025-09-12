@@ -134,7 +134,7 @@ const CitizenReportForm = () => {
           <label className="block text-sm font-medium text-gray-700 mb-2">{t('report.form.hazard_type')}</label>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { value: "high_waves", label: t('hazards.high_waves', { default: 'High Waves' }) },
+              { value: "high_tides", label: t('hazards.high_waves', { default: 'High Tides' }) },
               { value: "flood", label: t('hazards.flood', { default: 'Flooding' }) },
               { value: "tsunami", label: t('hazards.tsunami', { default: 'Tsunami' }) },
               { value: "pollution", label: t('hazards.pollution', { default: 'Pollution' }) },

@@ -18,6 +18,7 @@ function showLocalNotification(registration, title, options) {
 export default function PWAInit() {
   useEffect(() => {
     let swRegistration
+    const isDev = (process.env.NODE_ENV !== 'production') || (typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname))
     // If installed from an expired Netlify deploy preview, migrate to the stable origin
     try {
       const currentOrigin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -34,14 +35,21 @@ export default function PWAInit() {
       }
     } catch (_) {}
     async function registerSW() {
-      if ('serviceWorker' in navigator) {
+      if (!('serviceWorker' in navigator)) return
+      // In development/localhost, unregister any existing SWs and skip registration to avoid 404 precache errors
+      if (isDev) {
         try {
-          swRegistration = await navigator.serviceWorker.register('/sw.js')
-          // Prime offline page cache once on registration
-          try { await caches.open('static-offline').then(c => c.addAll(['/offline.html'])) } catch (_) {}
-        } catch (_) {
-          // ignore
-        }
+          const regs = await navigator.serviceWorker.getRegistrations()
+          regs?.forEach(r => r.unregister().catch(() => {}))
+        } catch (_) {}
+        return
+      }
+      try {
+        swRegistration = await navigator.serviceWorker.register('/sw.js')
+        // Prime offline page cache once on registration
+        try { await caches.open('static-offline').then(c => c.addAll(['/offline.html'])) } catch (_) {}
+      } catch (_) {
+        // ignore
       }
     }
 

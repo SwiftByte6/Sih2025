@@ -4,7 +4,7 @@ import { getUserProfileServer } from '@/lib/authServer'
 import LogoutButton from '@/components/LogoutButton'
 
 export default async function Page() {
-  const supabase = supabaseServerClient()
+  const supabase = await supabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

@@ -1,8 +1,22 @@
 // app/page.jsx
-'use client'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getUserProfileServer, getRedirectPath } from '@/lib/authServer'
+import { supabaseServerClient } from '@/lib/supabaseServer'
 
-export default function Home() {
+
+export default async function Home() {
+  const supabase = await supabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) redirect('/login')
+
+  const profile = await getUserProfileServer(user.id)
+  if (!profile) redirect('/login')
+
+  const role = profile.role
+  const target = getRedirectPath(role)
+  if (target !== '/user/dashboard') redirect(target)
   return (
     <main className="bg-[#F4FEFF] h-screen w-full flex items-center justify-center">
       <div className="flex flex-col items-center justify-between h-3/4 w-full px-6">

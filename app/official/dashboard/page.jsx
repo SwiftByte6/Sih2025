@@ -6,7 +6,7 @@ import OfficialDashboardClient from '@/components/official/OfficialDashboardClie
 const dummyReports = []
 
 export default async function Page() {
-  const supabase = supabaseServerClient()
+  const supabase = await supabaseServerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
