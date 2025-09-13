@@ -3,8 +3,9 @@ import React, { useState, useEffect, useRef } from "react"
 import { uploadMediaAndCreateReport } from "@/lib/reportService"
 import { useToast } from "@/components/ToastProvider"
 import { useI18n } from "@/contexts/I18nContext"
+import { supabase } from "@/lib/supabaseClient"
 
-const CitizenReportForm = () => {
+const CitizenReportForm = ({ editingReport, onReportCreated, onReportUpdated }) => {
   const { t } = useI18n()
   const [formData, setFormData] = useState({
     title: "",
@@ -27,6 +28,24 @@ const CitizenReportForm = () => {
   useEffect(() => {
     requestLocation()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load editing data when editingReport changes
+  useEffect(() => {
+    if (editingReport) {
+      setFormData({
+        title: editingReport.title || "",
+        type: editingReport.type || "other",
+        description: editingReport.description || "",
+        location: {
+          lat: editingReport.latitude || null,
+          lng: editingReport.longitude || null,
+        },
+      })
+      if (editingReport.image_url) {
+        setMediaPreview(editingReport.image_url)
+      }
+    }
+  }, [editingReport])
 
   // Cleanup camera on unmount
   useEffect(() => {
@@ -140,6 +159,55 @@ const CitizenReportForm = () => {
     }
   }
 
+  const updateReport = async ({ id, title, type, description, location, media }) => {
+    const { supabase } = await import('@/lib/supabaseClient')
+    
+    // Prepare update data
+    const updateData = {
+      title,
+      type,
+      description,
+      latitude: location?.lat || null,
+      longitude: location?.lng || null,
+      updated_at: new Date().toISOString()
+    }
+
+    // Handle media upload if new media is provided
+    if (media) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('User not authenticated')
+
+        const fileExt = media.name.split('.').pop()
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`
+        const filePath = `reports/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('reports')
+          .upload(filePath, media)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('reports')
+          .getPublicUrl(filePath)
+
+        updateData.image_url = publicUrl
+      } catch (error) {
+        console.error('Error uploading media:', error)
+        // Continue without media if upload fails
+      }
+    }
+
+    // Update the report
+    const { error } = await supabase
+      .from('reports')
+      .update(updateData)
+      .eq('id', id)
+
+    if (error) throw error
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -163,24 +231,50 @@ const CitizenReportForm = () => {
       // Only send location if we have valid coordinates
       const locationData = (formData.location.lat && formData.location.lng) ? formData.location : null
       
-      await uploadMediaAndCreateReport({
-        title: formData.title,
-        type: formData.type,
-        description: formData.description,
-        location: locationData,
-        media: mediaFile,
-      })
+      if (editingReport) {
+        // Update existing report
+        await updateReport({
+          id: editingReport.id,
+          title: formData.title,
+          type: formData.type,
+          description: formData.description,
+          location: locationData,
+          media: mediaFile,
+        })
+        toast({ title: 'Report updated', description: 'Your report has been updated successfully.', variant: 'success' })
+        if (onReportUpdated) onReportUpdated()
+      } else {
+        // Create new report
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('User not authenticated')
 
-      toast({ title: 'Report submitted', description: 'Thank you for your contribution.', variant: 'success' })
-      setFormData({ title: "", type: "other", description: "", location: formData.location })
-      setMediaFile(null)
-      setMediaPreview(null)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        const result = await uploadMediaAndCreateReport({
+          userId: user.id,
+          title: formData.title,
+          type: formData.type,
+          description: formData.description,
+          latitude: locationData?.lat || null,
+          longitude: locationData?.lng || null,
+          file: mediaFile,
+        })
+        console.log('Report created successfully:', result)
+        toast({ title: 'Report submitted', description: 'Thank you for your contribution.', variant: 'success' })
+        
+        // Reset form after successful creation
+        setFormData({ title: "", type: "other", description: "", location: formData.location })
+        setMediaFile(null)
+        setMediaPreview(null)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
+        
+        // Call the callback after form reset
+        if (onReportCreated) onReportCreated()
       }
     } catch (err) {
       console.error(err)
-      toast({ title: 'Submission failed', description: err?.message || 'Failed to submit report', variant: 'error' })
+      toast({ title: editingReport ? 'Update failed' : 'Submission failed', description: err?.message || `Failed to ${editingReport ? 'update' : 'submit'} report`, variant: 'error' })
     } finally {
       setSubmitting(false)
     }
@@ -422,7 +516,7 @@ const CitizenReportForm = () => {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
-                  <span>{t('report.submit', { default: 'Submit Report' })}</span>
+                  <span>{editingReport ? 'Update Report' : t('report.submit', { default: 'Submit Report' })}</span>
                 </div>
               )}
             </button>

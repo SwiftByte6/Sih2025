@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
                 const { data: reportRows } = await supabase
                     .from('reports')
-                    .select('id, title, status, created_at')
+                    .select('id, title, status, created_at, image_url, description, type')
                     .eq('user_id', user.id)
                     .order('created_at', { ascending: false })
                     .limit(20);
@@ -72,7 +72,10 @@ export default function ProfilePage() {
         id: r.id,
         title: r.title || t('user.untitled', { default: 'Untitled' }),
         status: r.status || 'pending',
-        date: r.created_at ? new Date(r.created_at).toLocaleString() : ''
+        date: r.created_at ? new Date(r.created_at).toLocaleString() : '',
+        imageUrl: r.image_url,
+        description: r.description,
+        type: r.type
     })), [reports, t]);
 
     async function saveProfile(e) {
@@ -168,13 +171,38 @@ export default function ProfilePage() {
                         </div>
                     ) : (
                         reportItems.map((report) => (
-                            <div key={report.id} className='w-full bg-white/70 rounded-2xl p-4 flex flex-col gap-2 shadow-sm'>
-                                <div className='flex justify-between items-center'>
-                                    <h2 className='font-bold text-lg'>{report.title}</h2>
+                            <div key={report.id} className='w-full bg-white/70 rounded-2xl p-4 flex flex-col gap-3 shadow-sm'>
+                                <div className='flex justify-between items-start'>
+                                    <div className='flex-1'>
+                                        <h2 className='font-bold text-lg'>{report.title}</h2>
+                                        {report.type && (
+                                            <p className='text-sm text-blue-600 font-medium mt-1'>{report.type}</p>
+                                        )}
+                                    </div>
                                     <span className={`px-4 py-2 border rounded-xl text-md font-medium ${statusBadgeClasses(report.status)}`}>
                                         {String(report.status).toUpperCase()}
                                     </span>
                                 </div>
+                                
+                                {report.imageUrl && (
+                                    <div className='w-full relative'>
+                                        <div className='absolute inset-0 bg-gray-200 rounded-xl animate-pulse'></div>
+                                        <img 
+                                            src={report.imageUrl} 
+                                            alt={report.title}
+                                            className='w-full h-48 object-cover rounded-xl border border-gray-200 relative z-10'
+                                            loading='lazy'
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                                
+                                {report.description && (
+                                    <p className='text-gray-600 text-sm line-clamp-2'>{report.description}</p>
+                                )}
+                                
                                 <p className='text-gray-500 text-sm'>{report.date}</p>
                             </div>
                         ))
