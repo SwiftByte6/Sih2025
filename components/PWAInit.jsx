@@ -75,8 +75,8 @@ export default function PWAInit() {
             const body = [bodyParts.filter(Boolean).join(' • '), alert.description].filter(Boolean).join('\n')
             const options = {
               body,
-              icon: '/icon-192.png',
-              badge: '/icon-192.png',
+              icon: '/Logo.png',
+              badge: '/Logo.png',
               data: { url: '/user/notifications' },
               tag: `alert-${alert.id || Math.random()}`,
             }

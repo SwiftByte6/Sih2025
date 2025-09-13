@@ -22,7 +22,10 @@ export default async function Home() {
       <div className="flex flex-col items-center justify-between h-3/4 w-full px-6">
         
         {/* Heading */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <img src="/Logo.png" alt="ShoreHelp" className="w-20 h-20" />
+          </div>
           <h1 className="text-3xl font-extrabold text-gray-900">Welcome :)</h1>
           <p className="text-gray-700 text-xl  font-medium leading-snug">
            combining citizen reports and social media  <br/>

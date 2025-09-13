@@ -190,7 +190,13 @@ const CitizenReportForm = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-      
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-4">
+            <img src="/Logo.png" alt="ShoreHelp" className="w-16 h-16" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('report.form.title', { default: 'Report a Hazard' })}</h1>
+          <p className="text-gray-600">{t('report.form.subtitle', { default: 'Help keep our coast safe by reporting hazards' })}</p>
+        </div>
         
         {/* Main Form Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">

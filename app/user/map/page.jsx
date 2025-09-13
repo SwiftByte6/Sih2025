@@ -34,7 +34,10 @@ export default function Page() {
   return (
     <div className='w-full min-h-screen flex flex-col gap-6 max-w-5xl mx-auto'>
       <div className='space-y-3'>
-        <h2 className='font-bold text-2xl m-3 text-center'>{t('user.map')}</h2>
+        <div className="flex items-center justify-center gap-3 m-3">
+          <img src="/Logo.png" alt="ShoreHelp" className="w-8 h-8" />
+          <h2 className='font-bold text-2xl'>{t('user.map')}</h2>
+        </div>
         <div className='w-full h-[80vh] overflow-hidden'>
           <MapWithSearch markers={markers} />
         </div>

@@ -39,9 +39,7 @@ function DesktopSidebar() {
       {/* Logo and Brand */}
       <div className="h-20 flex items-center px-6 border-b border-gray-700">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
+          <img src="/Logo.png" alt="Admin Console" className="w-10 h-10 rounded-lg" />
           <div>
             <h1 className="text-xl font-bold">Admin Console</h1>
             <p className="text-xs text-gray-400">Coastal Safety Platform</p>
@@ -112,9 +110,7 @@ function TopNavbar({ onOpenMobileNav }) {
           <Menu size={24} className="text-gray-700" />
         </button>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
+          <img src="/Logo.png" alt="Admin Console" className="w-8 h-8 rounded-lg" />
           <div>
             <h1 className="text-lg font-bold text-gray-900">Admin Console</h1>
             <p className="text-xs text-gray-500">Coastal Safety Platform</p>
@@ -206,9 +202,7 @@ export default function AdminLayout({ children }) {
           <div className="absolute left-0 top-0 h-full w-80 bg-white shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
+                <img src="/Logo.png" alt="Admin Console" className="w-8 h-8 rounded-lg" />
                 <div>
                   <h1 className="text-lg font-bold text-gray-900">Admin Console</h1>
                   <p className="text-xs text-gray-500">Coastal Safety Platform</p>

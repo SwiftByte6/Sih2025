@@ -16,7 +16,10 @@ function DesktopSidebar() {
   ]
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 bg-white text-gray-900 border-r border-gray-200">
-      <div className="h-16 flex items-center px-6 text-xl font-bold">CoastSafe</div>
+      <div className="h-16 flex items-center px-6 text-xl font-bold">
+        <img src="/Logo.png" alt="CoastSafe" className="w-8 h-8 mr-3" />
+        CoastSafe
+      </div>
       <nav className="flex-1 px-2 py-4 space-y-1">
         {links.map(({ href, label, icon: Icon }) => {
           const active = pathname === href
@@ -46,7 +49,7 @@ function TopNavbar({ onOpenMobileNav }) {
           <Menu size={20} className="text-gray-700" />
         </button>
         <div className="hidden lg:flex items-center gap-2 text-gray-700">
-          <ClipboardList size={18} />
+          <img src="/Logo.png" alt="CoastSafe" className="w-6 h-6" />
           <span className="font-semibold">Official Dashboard</span>
         </div>
       </div>
@@ -129,7 +132,10 @@ export default function OfficialLayout({ children }) {
         <div className="lg:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-72 bg-white border-r border-gray-200 p-4">
-            <div className="text-lg font-semibold mb-4">CoastSafe</div>
+            <div className="flex items-center gap-2 text-lg font-semibold mb-4">
+              <img src="/Logo.png" alt="CoastSafe" className="w-6 h-6" />
+              CoastSafe
+            </div>
             <MobileSidebarLinks onNavigate={() => setMobileOpen(false)} />
           </div>
         </div>

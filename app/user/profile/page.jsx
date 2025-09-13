@@ -105,7 +105,10 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen bg-[#F4FEFF] flex flex-col items-center p-4 pb-[10vh]">
             <div className='w-full flex items-center justify-between mt-4'>
-                <h1 className='text-center font-medium text-2xl'>{t('user.profile')}</h1>
+                <div className="flex items-center gap-3">
+                    <img src="/Logo.png" alt="ShoreHelp" className="w-8 h-8" />
+                    <h1 className='text-center font-medium text-2xl'>{t('user.profile')}</h1>
+                </div>
                 <div className='md:hidden'>
                     <LanguageSwitcher className="border rounded-xl px-3 py-2 bg-white" />
                 </div>

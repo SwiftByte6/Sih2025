@@ -268,7 +268,10 @@ export default function AnalyticsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <img src="/Logo.png" alt="ShoreHelp" className="w-8 h-8" />
+            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+          </div>
           <p className="text-gray-600">Comprehensive view of coastal hazard reports and social media activity</p>
         </div>
 

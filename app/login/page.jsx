@@ -114,6 +114,9 @@ export default function AuthPage() {
 
         <div className="p-6 md:p-8 bg-[#E0F2FE] border border-gray-400 space-y-12 h-[80vh] md:h-auto rounded-t-[2rem] md:rounded-2xl">
           <div className="space-y-3">
+            <div className="flex justify-center mb-4">
+              <img src="/Logo.png" alt="ShoreHelp" className="w-16 h-16" />
+            </div>
             <h1 className="text-2xl font-bold text-center text-gray-900">{isSignUp ? t('auth.signup_title', { default: 'Create Account' }) : t('auth.welcome_back', { default: 'Welcome Back' })}</h1>
             <p className="text-center text-gray-600 text-sm mb-6">{isSignUp ? t('auth.signup_subtitle', { default: 'Enter your details to sign up' }) : t('auth.signin_subtitle', { default: 'Enter your details' })}</p>
           </div>

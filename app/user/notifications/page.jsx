@@ -90,7 +90,10 @@ export default function Page() {
     <main className="min-h-screen bg-surface p-4 pb-24">
       <div className="mx-auto max-w-md space-y-4">
         <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
-          <h1 className="text-lg font-bold text-foreground">{t('user.notifications')}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <img src="/Logo.png" alt="ShoreHelp" className="w-6 h-6" />
+            <h1 className="text-lg font-bold text-foreground">{t('user.notifications')}</h1>
+          </div>
           <p className="text-sm text-foreground/70">{t('user.alerts_tagline', { default: 'Stay informed about hazards in your area.' })}</p>
         </div>
 

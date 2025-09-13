@@ -33,7 +33,10 @@ export default async function Page() {
   return (
     <div className="w-full min-h-screen p-4 flex flex-col gap-6 bg-surface">
       {/* Header */}
-      <h1 className="font-bold text-xl border-b pb-4 border-border"><Trans k="user.dashboard">Dashboard</Trans></h1>
+      <div className="flex items-center gap-3 border-b pb-4 border-border">
+        <img src="/Logo.png" alt="ShoreHelp" className="w-8 h-8" />
+        <h1 className="font-bold text-xl"><Trans k="user.dashboard">Dashboard</Trans></h1>
+      </div>
 
       {/* Action Buttons */}
       <Link href="/user/report" className="w-full px-4 py-4 rounded-3xl border border-border bg-brand/70 font-bold text-center">
