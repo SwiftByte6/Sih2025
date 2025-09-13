@@ -319,7 +319,7 @@ const CitizenReportForm = () => {
               {/* Media Upload Buttons */}
               {!showCamera && (
                 <div className="grid grid-cols-2 gap-3">
-                  <button
+                  {/* <button
                     type="button"
                     onClick={startCamera}
                     className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 font-semibold"
@@ -330,11 +330,11 @@ const CitizenReportForm = () => {
                     </svg>
                     <span>Camera</span>
                   </button>
-                  
+                   */}
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center justify-center space-x-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white p-4 rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-200 font-semibold"
+                    className="flex items-center justify-center space-x-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white p-4 rounded-xl hover:from-gray-600 hover:to-gray-700 w-full transition-all duration-200 font-semibold"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />

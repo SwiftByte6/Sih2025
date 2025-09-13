@@ -126,12 +126,12 @@ export default function ProfilePage() {
 
                 <form onSubmit={saveProfile} className='w-full max-w-md mt-4 space-y-3'>
                     <div className='flex flex-col gap-1'>
-                        <label className='text-sm text-gray-700'>{t('user.full_name', { default: 'Full name' })}</label>
+                        <label className='text-sm text-gray-700'>{t('Name', { default: 'Full name' })}</label>
                         <input
                             className='w-full rounded-xl border px-3 py-2 bg-white'
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            placeholder={t('user.full_name_placeholder', { default: 'Your full name' })}
+                            placeholder={t('full_name_placeholder', { default: 'Your full name' })}
                         />
                     </div>
                     <div className='flex flex-col gap-1'>

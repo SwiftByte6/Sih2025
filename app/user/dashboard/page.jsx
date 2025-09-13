@@ -31,7 +31,7 @@ export default async function Page() {
   const reports = Array.isArray(reportsData) ? reportsData : []
 
   return (
-    <div className="w-full min-h-screen p-4 flex flex-col gap-6  bg-[]">
+    <div className="w-full min-h-screen p-4 flex flex-col gap-6  bg-[#F4FEFF]">
       {/* Header */}
       <div className="flex items-center gap-3 border-b pb-4 border-border">
         <img src="/Logo.png" alt="ShoreHelp" className="w-8 h-8" />
@@ -45,7 +45,7 @@ export default async function Page() {
 
       <div className="grid grid-cols-2 gap-4">
         <Link href="/user/map" className="px-4 py-4 rounded-3xl bg-background border-2 border-brand/30 font-bold text-center shadow-md hover:shadow-lg hover:border-brand transition-all duration-200 transform hover:scale-105">
-          <div className="text-brand font-semibold">
+          <div className="text-brand font-semibold ">
             <Trans k="user.map">Map</Trans>
           </div>
         </Link>
@@ -78,7 +78,7 @@ export default async function Page() {
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="w-full bg-background border-2 border-brand/20 h-20 rounded-2xl flex flex-col justify-center px-4 shadow-md hover:shadow-lg hover:border-brand/40 transition-all duration-200"
+                className="w-full bg-[#93C5FD]/70 border-2 border-brand/20 h-20 rounded-2xl flex flex-col justify-center px-4 shadow-md hover:shadow-lg hover:border-brand/40 transition-all duration-200"
               >
                 <p className="font-bold text-foreground">{report.title ?? 'Untitled'}</p>
                 <p className="text-sm text-foreground/70">

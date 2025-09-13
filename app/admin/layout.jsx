@@ -19,6 +19,7 @@ import {
   LogOut,
   User
 } from 'lucide-react'
+import LogoutButton from '@/components/LogoutButton'
 
 function DesktopSidebar() {
   const pathname = usePathname()
@@ -31,7 +32,7 @@ function DesktopSidebar() {
     { href: '/admin/notifications', label: 'Notifications', icon: Bell, badge: '12' },
     { href: '/admin/logs', label: 'System Logs', icon: ClipboardList, badge: null },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, badge: null },
-    { href: '/admin/settings', label: 'Settings', icon: Settings, badge: null },
+  
   ]
   
   return (
@@ -77,6 +78,7 @@ function DesktopSidebar() {
             </Link>
           )
         })}
+        <LogoutButton/>
       </nav>
       
       {/* User Profile */}

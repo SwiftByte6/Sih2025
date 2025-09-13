@@ -23,7 +23,7 @@ const lexendExa = Lexend_Exa({
 })
 
 export const metadata = {
-  title: "ShoreHelp - Coastal Safety Platform",
+  title: "ShoreSafe - Coastal Safety Platform",
   description: "Citizen reporting app for hazard reporting with camera support",
   manifest: "/manifest.json",
   icons: {
