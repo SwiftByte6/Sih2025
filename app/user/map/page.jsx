@@ -1,10 +1,9 @@
-// app/user/dashboard/page.jsx
+// app/user/map/page.jsx
 "use client"
 import React, { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useI18n } from '@/contexts/I18nContext'
 import { fetchRecentReports } from '@/lib/reportService'
-import CitizenReportForm from '@/components/CitizenReportForm'
 
 const MapWithSearch = dynamic(() => import('@/components/MapWithSearch'), { ssr: false })
 
@@ -26,10 +25,26 @@ export default function Page() {
   const markers = useMemo(() => (reports || []).map(r => ({
     id: r.id,
     position: [r.latitude, r.longitude],
-    title: r.hazard_type || 'No Title',  // fallback if hazard_type is missing
+    title: r.title || r.type || 'No Title',
     description: r.description || 'No Description',
-    status: r.status || 'pending'       // add status for verified/pending
+    status: r.status || 'pending'
   })), [reports])
+
+  if (loading) {
+    return (
+      <div className='w-full min-h-screen flex items-center justify-center'>
+        <div className='text-lg'>Loading map...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className='w-full min-h-screen flex items-center justify-center'>
+        <div className='text-lg text-red-600'>Error: {error}</div>
+      </div>
+    )
+  }
 
   return (
     <div className='w-full min-h-screen flex flex-col gap-6 max-w-5xl mx-auto'>

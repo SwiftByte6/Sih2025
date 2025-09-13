@@ -26,20 +26,26 @@ async function geocode(query) {
   return res.json()
 }
 
-// Custom icons for verified and pending
-const verifiedIcon = L.icon({
-  iconUrl: '/icons/verified.png', // add in public/icons/
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-})
+// Create colored marker icons using SVG data URLs
+const createColoredIcon = (color) => {
+  const svgIcon = `
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 2C10.48 2 6 6.48 6 12c0 8 10 18 10 18s10-10 10-18c0-5.52-4.48-10-10-10z" fill="${color}" stroke="#fff" stroke-width="2"/>
+      <circle cx="16" cy="12" r="4" fill="#fff"/>
+    </svg>
+  `
+  
+  return L.icon({
+    iconUrl: `data:image/svg+xml;base64,${btoa(svgIcon)}`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+  })
+}
 
-const pendingIcon = L.icon({
-  iconUrl: '/icons/unverified.png', // add in public/icons/
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-})
+const yellowIcon = createColoredIcon('#FFD700')
+const greenIcon = createColoredIcon('#22C55E')
+const redIcon = createColoredIcon('#EF4444')
 
 export default function MapWithSearch({ markers = [] }) {
   const [search, setSearch] = useState('')
@@ -98,22 +104,59 @@ console.log(markers)
   const radius = 500 // meters
   const threshold = 3 // reports to form hotspot
 
-  // Compute hotspot circles
-  const hotspotCircles = useMemo(() => {
+  // Compute hotspot circles and marker colors
+  const { hotspotCircles, markersWithColors } = useMemo(() => {
     const circles = []
+    const markersWithColors = validMarkers.map(m => {
+      const nearby = validMarkers.filter(other =>
+        getDistance(m.position, other.position) <= radius
+      )
+      
+      // Determine marker color based on report count and verification status
+      let markerColor = 'yellow' // default for less than 3 reports
+      
+      if (nearby.length > 7) {
+        markerColor = 'red' // more than 7 reports
+      } else if (nearby.length >= 3 && m.status?.toLowerCase() === 'verified') {
+        markerColor = 'green' // verified and 3+ reports
+      }
+      
+      return {
+        ...m,
+        nearbyCount: nearby.length,
+        markerColor
+      }
+    })
+    
+    // Create hotspot circles for areas with 3+ reports
     validMarkers.forEach(m => {
       const nearby = validMarkers.filter(other =>
         getDistance(m.position, other.position) <= radius
       )
       if (nearby.length >= threshold) {
+        // Determine circle color based on report count and verification status
+        let circleColor = 'yellow'
+        let circleFillColor = 'yellow'
+        
+        if (nearby.length > 7) {
+          circleColor = 'red'
+          circleFillColor = 'red'
+        } else if (nearby.length >= 3 && m.status?.toLowerCase() === 'verified') {
+          circleColor = 'green'
+          circleFillColor = 'green'
+        }
+        
         circles.push({
           id: m.id,
           center: m.position,
-          count: nearby.length
+          count: nearby.length,
+          color: circleColor,
+          fillColor: circleFillColor
         })
       }
     })
-    return circles
+    
+    return { hotspotCircles: circles, markersWithColors }
   }, [validMarkers])
 
   return (
@@ -131,6 +174,28 @@ console.log(markers)
         </button>
       </form>
       {error && <div className="px-3 py-1 text-sm text-red-600">{error}</div>}
+      
+      {/* Legend */}
+      <div className="bg-white/90 rounded-lg p-3 text-xs space-y-1">
+        <div className="font-semibold text-gray-700 mb-2">Report Priority Legend:</div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-yellow-400 border border-white"></div>
+          <span>Yellow: Less than 3 reports in area</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-green-500 border border-white"></div>
+          <span>Green: Verified & 3+ reports in area</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-red-500 border border-white"></div>
+          <span>Red: More than 7 reports in area</span>
+        </div>
+        <div className="mt-2 pt-2 border-t border-gray-300">
+          <div className="text-xs text-gray-600">
+            <strong>Circles:</strong> Show hotspot regions (3+ reports) with matching priority colors
+          </div>
+        </div>
+      </div>
       <div className="flex-1 rounded-2xl overflow-hidden border border-gray-500">
         <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
           <TileLayer
@@ -140,9 +205,14 @@ console.log(markers)
           <FlyTo center={center} zoom={zoom} />
 
 
-          {validMarkers.map((m, idx) => {
-            const status = m.status?.toLowerCase().trim()  
-            const icon = status === 'verified' ? verifiedIcon : pendingIcon
+          {markersWithColors.map((m, idx) => {
+            // Select icon based on marker color
+            let icon = yellowIcon // default
+            if (m.markerColor === 'green') {
+              icon = greenIcon
+            } else if (m.markerColor === 'red') {
+              icon = redIcon
+            }
 
             return (
               <Marker
@@ -154,8 +224,18 @@ console.log(markers)
                   <div className="space-y-1">
                     <div className="font-semibold">{m.title}</div>
                     <div className="text-sm text-gray-700">{m.description}</div>
-                    <div className={`text-xs ${status === 'verified' ? 'text-green-600' : 'text-red-600'}`}>
-                      {status}
+                    <div className="text-xs text-gray-600">
+                      Status: {m.status || 'pending'}
+                    </div>
+                    <div className="text-xs text-blue-600">
+                      Reports in area: {m.nearbyCount}
+                    </div>
+                    <div className={`text-xs font-medium ${
+                      m.markerColor === 'red' ? 'text-red-600' : 
+                      m.markerColor === 'green' ? 'text-green-600' : 
+                      'text-yellow-600'
+                    }`}>
+                      Priority: {m.markerColor.toUpperCase()}
                     </div>
                   </div>
                 </Popup>
@@ -169,9 +249,26 @@ console.log(markers)
               key={`circle-${c.id}`}
               center={c.center}
               radius={radius}
-              pathOptions={{ color: 'red', fillColor: 'red', fillOpacity: 0.3 }}
+              pathOptions={{ 
+                color: c.color, 
+                fillColor: c.fillColor, 
+                fillOpacity: 0.3,
+                weight: 2
+              }}
             >
-              <Popup>{c.count} reports in this area</Popup>
+              <Popup>
+                <div className="space-y-1">
+                  <div className="font-semibold">Hotspot Area</div>
+                  <div className="text-sm">{c.count} reports in this area</div>
+                  <div className={`text-xs font-medium ${
+                    c.color === 'red' ? 'text-red-600' : 
+                    c.color === 'green' ? 'text-green-600' : 
+                    'text-yellow-600'
+                  }`}>
+                    Priority: {c.color.toUpperCase()}
+                  </div>
+                </div>
+              </Popup>
             </Circle>
           ))}
         </MapContainer>
