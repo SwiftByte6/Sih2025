@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Bell, LayoutGrid, FileText, Siren, ScrollText, ClipboardList, User } from 'lucide-react'
+import { Menu, Bell, LayoutGrid, FileText, Siren, ScrollText, ClipboardList, User, Send, CheckCircle } from 'lucide-react'
 import LogoutButton from '@/components/LogoutButton'
 
 function DesktopSidebar() {
@@ -70,7 +70,9 @@ function MobileSidebarLinks({ onNavigate }) {
   const pathname = usePathname()
   const links = [
     { href: '/official/dashboard', label: 'Dashboard' },
-    { href: '/official/reports', label: 'Reports' },
+    { href: '/official/reports', label: 'Active Reports' },
+    { href: '/official/resolved', label: 'Resolved' },
+    { href: '/official/forwarded', label: 'Forwarded' },
     { href: '/official/alerts', label: 'Alerts' },
     { href: '/official/notices', label: 'Notices' },
     { href: '/official/logs', label: 'Logs' },
@@ -93,9 +95,9 @@ function MobileBottomNav() {
   const pathname = usePathname()
   const links = [
     { href: '/official/dashboard', label: 'Home', icon: LayoutGrid },
-    { href: '/official/reports', label: 'Reports', icon: FileText },
-    { href: '/official/alerts', label: 'Alerts', icon: Siren },
-    { href: '/official/notices', label: 'Notices', icon: ScrollText },
+    { href: '/official/reports', label: 'Active', icon: FileText },
+    { href: '/official/resolved', label: 'Resolved', icon: CheckCircle },
+    { href: '/official/forwarded', label: 'Forwarded', icon: Send },
   ]
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-gray-200">

@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import ReportCard from '@/components/official/ReportCard'
+import ForwardModal from '@/components/official/ForwardModal'
 import dynamic from 'next/dynamic'
 
 const MapWidget = dynamic(() => import('@/components/MapWidget'), { ssr: false })
@@ -11,10 +12,13 @@ export default function OfficialReportsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [data, setData] = useState([])
+  const [forwardModalOpen, setForwardModalOpen] = useState(false)
+  const [selectedReport, setSelectedReport] = useState(null)
 
   useEffect(() => {
     let isMounted = true
     setLoading(true)
+    // First try to fetch all reports to see if API is working
     fetch('/api/reports', { cache: 'no-store' })
       .then(async (res) => {
         if (!res.ok) throw new Error('Failed to load reports')
@@ -22,7 +26,11 @@ export default function OfficialReportsPage() {
         return json.reports || []
       })
       .then((reports) => {
-        if (isMounted) setData(reports)
+        if (isMounted) {
+          // Filter to show only pending reports for now
+          const activeReports = reports.filter(r => r.status === 'pending')
+          setData(activeReports)
+        }
       })
       .catch((e) => {
         if (isMounted) setError(e.message || 'Error loading reports')
@@ -43,10 +51,62 @@ export default function OfficialReportsPage() {
       description: r.description || '',
     })), [filtered])
 
+  const handleForward = (report) => {
+    setSelectedReport(report)
+    setForwardModalOpen(true)
+  }
+
+  const handleForwardComplete = (reportId) => {
+    // Remove the report from the active list since it's now forwarded
+    setData(prevData => prevData.filter(report => report.id !== reportId))
+  }
+
+  const handleResolve = async (report) => {
+    try {
+      const response = await fetch('/api/reports/resolve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reportId: report.id,
+          resolutionNotes: 'Resolved by official'
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to resolve report')
+      }
+
+      // Remove the report from the active list since it's now resolved
+      setData(prevData => prevData.filter(r => r.id !== report.id))
+      
+    } catch (err) {
+      console.error('Error resolving report:', err)
+      // You could add a toast notification here
+    }
+  }
+
   return (
     <div className="space-y-4">
+      {/* Header */}
+      <div className="rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">Active Reports</h1>
+            <p className="text-sm text-gray-600 mt-1">Reports that need attention - pending resolution or forwarding</p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-orange-600">{data.length}</div>
+            <div className="text-xs text-gray-500">Active Reports</div>
+          </div>
+        </div>
+      </div>
+
       <div className="rounded-xl border border-gray-200 bg-white p-3 flex flex-col sm:flex-row gap-2 sm:items-center">
-        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search..." className="flex-1 bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm"/>
+        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search active reports..." className="flex-1 bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm"/>
         <div className="flex gap-2">
           <button onClick={()=>setView('table')} className={`rounded-md px-3 py-2 text-sm ${view==='table'?'bg-sky-600 text-white':'bg-gray-100 hover:bg-gray-200'}`}>Table</button>
           <button onClick={()=>setView('map')} className={`rounded-md px-3 py-2 text-sm ${view==='map'?'bg-sky-600 text-white':'bg-gray-100 hover:bg-gray-200'}`}>Map</button>
@@ -84,8 +144,18 @@ export default function OfficialReportsPage() {
                   <td className="px-4 py-2">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="px-4 py-2 text-right">
                     <div className="flex gap-2 justify-end">
-                      <button className="px-2 py-1 text-xs rounded-md bg-emerald-600 hover:bg-emerald-700 text-white">Resolve</button>
-                      <button className="px-2 py-1 text-xs rounded-md bg-sky-600 hover:bg-sky-700 text-white">Forward</button>
+                      <button 
+                        onClick={() => handleResolve(r)}
+                        className="px-2 py-1 text-xs rounded-md bg-emerald-600 hover:bg-emerald-700 text-white"
+                      >
+                        Resolve
+                      </button>
+                      <button 
+                        onClick={() => handleForward(r)}
+                        className="px-2 py-1 text-xs rounded-md bg-sky-600 hover:bg-sky-700 text-white"
+                      >
+                        Forward
+                      </button>
                       <button className="px-2 py-1 text-xs rounded-md bg-gray-100 hover:bg-gray-200">Remark</button>
                     </div>
                   </td>
@@ -100,7 +170,7 @@ export default function OfficialReportsPage() {
       {!loading && !error && view==='table' && (
         <div className="lg:hidden space-y-3">
           {filtered.map(r => (
-            <ReportCard key={r.id} report={r} onResolve={()=>{}} onForward={()=>{}} onRemark={()=>{}} />
+            <ReportCard key={r.id} report={r} onResolve={handleResolve} onForward={handleForward} onRemark={()=>{}} />
           ))}
         </div>
       )}
@@ -111,6 +181,14 @@ export default function OfficialReportsPage() {
           <MapWidget markers={markers} />
         </div>
       )}
+
+      {/* Forward Modal */}
+      <ForwardModal
+        isOpen={forwardModalOpen}
+        onClose={() => setForwardModalOpen(false)}
+        report={selectedReport}
+        onForward={handleForwardComplete}
+      />
     </div>
   )
 }

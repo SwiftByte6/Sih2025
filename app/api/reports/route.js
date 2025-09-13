@@ -20,13 +20,33 @@ async function getSupabaseServerClient() {
   })
 }
 
-export async function GET() {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url)
+  const status = searchParams.get('status') // 'active', 'resolved', 'forwarded', or null for all
+  
   const supabase = await getSupabaseServerClient()
-  const { data, error } = await supabase
+  
+  // Get reports with basic columns first
+  let query = supabase
     .from('reports')
     .select('id, title, type, description, latitude, longitude, created_at, status, image_url')
     .order('created_at', { ascending: false })
     .limit(20)
+
+  // Filter based on status parameter
+  if (status === 'active') {
+    // Show only active reports (not resolved and not forwarded)
+    query = query.eq('status', 'pending')
+  } else if (status === 'resolved') {
+    // Show only resolved reports
+    query = query.eq('status', 'resolved')
+  } else if (status === 'forwarded') {
+    // Show only forwarded reports
+    query = query.eq('status', 'forwarded')
+  }
+  // If no status parameter, show all reports (default behavior)
+
+  const { data, error } = await query
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
